@@ -1,0 +1,45 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfplan
+tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.tfstate.lock.info
+# Keep the provider lock file committed: .terraform.lock.hcl
+
+# Secrets and local config - never commit
+*.tfvars
+!*.example.tfvars
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig*
+.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Editors and OS
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Diagram build artefacts (the PNGs are committed, the .gv sources are not)
+docs/diagrams/*.gv

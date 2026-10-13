@@ -1,0 +1,7 @@
+# Tools used in the dev container and CI. Pin versions once the first build works.
+pre-commit
+checkov
+ruff
+pytest
+diagrams
+boto3
