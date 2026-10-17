@@ -4,20 +4,16 @@ Instructions for Claude Code working in this repository. Read this fully before 
 
 ## 1. What this repository is
 
-A portfolio prototype of an **AWS internal developer platform** for a fictional company,
-Northwind Logistics: about 80 staff, 35 engineers in 5 product teams. The repo owner is the
-platform team. The platform is the product; product teams are its users.
+A portfolio prototype of an **AWS internal developer platform** for a fictional company, Northwind Logistics: about 80 staff, 35 engineers in 5 product teams. The repo owner is the platform team. The platform is the product; product teams are its users.
 
 The repo serves three goals, in this order of priority:
 
 1. **Platform** — a working, secure, observable AWS platform built entirely as code.
-2. **CV and job applications** — evidence that the owner is a credible mid-level AWS
-   Platform Engineer in the UK market (see section 4).
+2. **CV and job applications** — evidence that the owner is a credible mid-level AWS Platform Engineer in the UK market (see section 4).
 3. **Interview readiness** — the owner must be able to explain and defend every line
    (see section 5).
 
-If a request conflicts with goal 3 (for example "just generate the whole module"), help the
-owner understand the code rather than writing it silently.
+If a request conflicts with goal 3 (for example "just generate the whole module"), help the owner understand the code rather than writing it silently.
 
 ## 2. Platform requirements
 

@@ -1,0 +1,9 @@
+   # Ruff configuration (lint + format) for apps/, tools/ and docs/diagrams/.
+   target-version = "py312"
+   line-length = 88
+
+   [lint]
+   # EXE002: "file is executable but has no shebang".
+   # The repo lives on Windows (NTFS) and is bind-mounted into the Linux dev container,
+   # where every file appears executable (rwxrwxrwx). The warning is a false positive here.
+   extend-ignore = ["EXE002"]
