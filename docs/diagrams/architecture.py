@@ -17,12 +17,21 @@ component is added or removed, update the diagram in the same pull request.
 from pathlib import Path
 
 from diagrams import Cluster, Diagram, Edge
-from diagrams.aws.compute import EC2ContainerRegistry, EC2SpotInstance, ElasticKubernetesService
+from diagrams.aws.compute import (
+    EC2ContainerRegistry,
+    EC2SpotInstance,
+    ElasticKubernetesService,
+)
 from diagrams.aws.cost import Budgets
 from diagrams.aws.database import Dynamodb
 from diagrams.aws.integration import SimpleQueueServiceSqs
 from diagrams.aws.management import Cloudtrail, Cloudwatch, Organizations
-from diagrams.aws.network import ElbApplicationLoadBalancer, Endpoint, NATGateway, Route53
+from diagrams.aws.network import (
+    ElbApplicationLoadBalancer,
+    Endpoint,
+    NATGateway,
+    Route53,
+)
 from diagrams.aws.security import (
     IdentityAndAccessManagementIamRole,
     KeyManagementService,
@@ -54,6 +63,7 @@ GRAPH = {
 }
 NODE = {"fontsize": "12", "fontname": "Helvetica"}
 CLUSTER = {"fontsize": "14", "fontname": "Helvetica-Bold"}
+
 
 # Edge factories: diagrams mutates Edge objects when chained, so every
 # connection must get a fresh Edge or labels and arrows leak between lines.
@@ -104,7 +114,9 @@ def detailed() -> None:
                 state = SimpleStorageServiceS3("Terraform state\n(S3, lockfile)")
                 dns = Route53("Route 53\nplatform subdomain")
 
-            with Cluster("workloads-dev account (prod mirrors this)", graph_attr=CLUSTER):
+            with Cluster(
+                "workloads-dev account (prod mirrors this)", graph_attr=CLUSTER
+            ):
                 with Cluster("VPC - 3 AZs", graph_attr=CLUSTER):
                     alb = ElbApplicationLoadBalancer("ALB\n(LB controller)")
                     nat = NATGateway("NAT\n(1 in dev)")
@@ -168,7 +180,11 @@ def detailed() -> None:
         tempo >> signal() >> graf
         prom >> signal("burn-rate alerts") >> slack
         budget >> signal("cost alert") >> slack
-        _ = (sso, trail, nat)  # shown as account contents; no edges to keep the view readable
+        _ = (
+            sso,
+            trail,
+            nat,
+        )  # shown as account contents; no edges to keep the view readable
 
 
 def cv() -> None:
@@ -200,6 +216,7 @@ def cv() -> None:
         tenants >> data() >> data_store
         tenants >> signal() >> obs
         obs >> signal("alerts") >> slack
+
 
 if __name__ == "__main__":
     detailed()
