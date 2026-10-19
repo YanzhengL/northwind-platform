@@ -108,10 +108,15 @@ def detailed() -> None:
                 sso = SingleSignOn("IAM Identity\nCenter")
                 trail = Cloudtrail("Org CloudTrail")
                 budget = Budgets("Budgets\n£20/month")
+                # Bootstrap lives here until shared-services exists (ADR 0003).
+                with Cluster("bootstrap (applied by hand)", graph_attr=CLUSTER):
+                    state = SimpleStorageServiceS3("Terraform state\n(S3, lockfile)")
+                    gha_roles = IdentityAndAccessManagementIamRole(
+                        "GitHub OIDC provider\nnw-gha-plan / nw-gha-apply"
+                    )
 
             with Cluster("shared-services account", graph_attr=CLUSTER):
                 ecr = EC2ContainerRegistry("ECR")
-                state = SimpleStorageServiceS3("Terraform state\n(S3, lockfile)")
                 dns = Route53("Route 53\nplatform subdomain")
 
             with Cluster(
@@ -152,6 +157,8 @@ def detailed() -> None:
         tf >> deploy("provision") >> eks
         tf >> deploy() >> org
         tf >> control("state") >> state
+        # Keyless CI: Actions trades its OIDC token for short-lived role credentials.
+        gha >> control("assume role (OIDC)") >> gha_roles
         gha >> deploy("push image") >> ecr
         repo >> deploy("sync gitops/") >> argo
         argo >> deploy() >> orders
