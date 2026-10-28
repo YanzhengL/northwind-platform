@@ -1,0 +1,41 @@
+# Example inputs for terraform/bootstrap. Copy and fill in:
+#
+#   cp terraform.tfvars.example terraform.tfvars    # terraform.tfvars is gitignored
+#
+# Run with management-account SSO credentials. See README.md for the first-ever run,
+# which uses local state until the state bucket exists.
+
+# Optional. Region of the state bucket and the default provider region.
+# region = "eu-west-2"
+
+# ---------- default_tags ----------
+# Keep these identical across every stack, or cost reports split them into separate values.
+
+team    = "platform"
+env     = "mgmt"
+service = "bootstrap"
+owner   = "your-handle" # a stable handle or team alias, not a personal email
+
+# ---------- State bucket ----------
+
+# The bucket becomes nw-<bucket_suffix>-tfstate. S3 names are global, so the suffix must
+# make it unique. Your 12-digit account ID works; a short random string avoids putting
+# the account ID in the name. terraform/org reuses the same suffix for its log bucket.
+bucket_suffix = "your-suffix"
+
+# Optional. Days to keep old versions of state files. Defaults to 90.
+# state_noncurrent_version_days = 90
+
+# ---------- GitHub OIDC ----------
+
+# Exactly as in https://github.com/<owner>/<repo>. The OIDC trust policy matches
+# these case-sensitively, so a wrong case means CI can't assume the roles.
+github_owner = "your-github-user-or-org"
+github_repo  = "northwind-platform"
+
+# Optional. Pushes to this branch may assume the apply role. Defaults to "main".
+# github_apply_branch = "main"
+
+# Optional. Jobs in this GitHub environment may assume the apply role.
+# Defaults to "production"; set to null to trust only the branch.
+# github_apply_environment = "production"

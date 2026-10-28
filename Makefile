@@ -4,13 +4,30 @@ SHELL := /bin/bash
 ENV ?= dev
 TF_DIR := terraform/envs/$(ENV)
 
-.PHONY: help bootstrap up down plan apply drill-1 drill-2 drill-3 drill-4 drill-5 diagram lint test tools-update
+.PHONY: help bootstrap bootstrap-plan bootstrap-check up down plan apply drill-1 drill-2 drill-3 drill-4 drill-5 diagram lint test tools-update
 
 help: ## Show targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
-bootstrap: ## One-off: state bucket + GitHub OIDC roles (Week 1)
-	@echo "TODO Week 1: terraform -chdir=terraform/bootstrap init && apply"
+BOOTSTRAP_DIR := terraform/bootstrap
+BOOTSTRAP_PROFILE ?= admin
+
+# Bootstrap is applied by a human with SSO, never by CI, so pin the profile for these targets only.
+bootstrap bootstrap-plan bootstrap-check: export AWS_PROFILE := $(BOOTSTRAP_PROFILE)
+
+# Fail fast with a clear message instead of a cryptic Terraform/backend error.
+bootstrap-check:
+	@test -f $(BOOTSTRAP_DIR)/terraform.tfvars || { echo "Missing $(BOOTSTRAP_DIR)/terraform.tfvars - copy terraform.tfvars.example and fill it in."; exit 1; }
+	@test -f $(BOOTSTRAP_DIR)/backend.s3.tfbackend || { echo "Missing $(BOOTSTRAP_DIR)/backend.s3.tfbackend - first-ever run? Follow 'First-ever run' in $(BOOTSTRAP_DIR)/README.md."; exit 1; }
+	@aws sts get-caller-identity > /dev/null 2>&1 || { echo "No valid AWS session for profile '$(AWS_PROFILE)' - run: aws sso login --profile $(AWS_PROFILE)"; exit 1; }
+	terraform -chdir=$(BOOTSTRAP_DIR) init -input=false -backend-config=backend.s3.tfbackend
+
+bootstrap-plan: bootstrap-check ## Plan the bootstrap stack (expect: No changes)
+	terraform -chdir=$(BOOTSTRAP_DIR) plan
+
+# Apply prompts for "yes" after showing the plan - that prompt is the review gate.
+bootstrap: bootstrap-check ## Apply state bucket + GitHub OIDC roles (after the first-ever run)
+	terraform -chdir=$(BOOTSTRAP_DIR) apply
 
 plan: ## terraform plan for ENV (default dev)
 	terraform -chdir=$(TF_DIR) init -input=false && terraform -chdir=$(TF_DIR) plan

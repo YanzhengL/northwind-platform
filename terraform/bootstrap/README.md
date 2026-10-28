@@ -57,6 +57,8 @@ terraform init -backend-config=backend.s3.tfbackend
 terraform plan                                                 # expect: No changes
 ```
 
+Or from the repo root, once `terraform.tfvars` and `backend.s3.tfbackend` exist: `make bootstrap-plan` (check) and `make bootstrap` (apply, prompts for `yes`). Use `BOOTSTRAP_PROFILE=<name>` if your SSO profile isn't `admin`.
+
 ### First-ever run (state bucket does not exist yet)
 
 The bucket that will hold the state is created by this stack, so the first apply has to use local state.
