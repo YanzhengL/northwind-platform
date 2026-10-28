@@ -1,4 +1,4 @@
-# 0002. Gate the apply role behind a protected GitHub Environment
+# 0012. Gate the apply role behind a protected GitHub Environment
 
 - **Status:** accepted
 - **Date:** 2026-10-16

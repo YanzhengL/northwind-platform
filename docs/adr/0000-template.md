@@ -1,4 +1,5 @@
 # NNNN. Title
+<!-- Number = roadmap day + decision digit: Day 2 -> 0020, 0021, 0022. -->
 
 - **Status:** proposed | accepted | superseded by NNNN
 - **Date:** YYYY-MM-DD

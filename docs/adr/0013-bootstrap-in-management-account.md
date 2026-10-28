@@ -1,4 +1,4 @@
-# 0003. Keep the bootstrap stack in the management account for now
+# 0013. Keep the bootstrap stack in the management account for now
 
 - **Status:** accepted
 - **Date:** 2026-10-19
@@ -35,13 +35,13 @@ location. Move the state bucket and the CI roles to `shared-services` once that 
 ## Consequences
 - The diagram shows the bootstrap resources inside the management account, matching what is deployed.
 - Until migration, the apply role's trust policy and the protected `production` environment
-  (ADR 0002) are the main controls on org-wide admin access. Keep that environment locked to `main`
+  (ADR 0012) are the main controls on org-wide admin access. Keep that environment locked to `main`
   with a required reviewer.
 - Cost is unchanged: one S3 bucket holding a few KB of state; IAM and OIDC are free.
 - Migration plan, tracked in #4:
   1. Create `shared-services` via `terraform/org`.
   2. Create a new state bucket there and run `terraform init -migrate-state` for each stack.
-  3. Create per-account CI roles (see ADR 0002 consequences) and narrow the management-account
+  3. Create per-account CI roles (see ADR 0012 consequences) and narrow the management-account
      role to the `terraform/org` stack only.
   4. Remove the old bucket and roles from the management account.
 
