@@ -38,7 +38,7 @@ Policies are written with `data "aws_iam_policy_document"` in `terraform/org`, a
 
 ## Consequences
 - Each deny statement is a guardrail that can be explained and tested. The region lock is proven by
-  the `us-east-1` bucket test (`docs/evidence/YYYY-MM-DD-scp-region-deny.png`).
+  the `us-east-1` bucket test (`2026-10-29-scp-region-deny.png`).
 - SCP limits apply: 5,120 characters per policy and 5 SCPs per target (including `FullAWSAccess`).
   Related statements are grouped to stay under them.
 - SCPs don't protect the management account. Anything still there (state bucket, CI roles, possibly
