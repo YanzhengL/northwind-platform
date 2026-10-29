@@ -1,0 +1,85 @@
+# Example inputs for terraform/org. Copy and fill in:
+#
+#   cp terraform.tfvars.example terraform.tfvars    # terraform.tfvars is gitignored
+#
+# Run with management-account SSO credentials. The commands in the comments are
+# read-only and show the value to use. Never commit the real file: it holds the
+# organization ID and the root-recovery emails of every member account.
+
+# Optional. The only region workloads may use (region lock SCP), and the CloudTrail home region.
+# region = "eu-west-2"
+
+# ---------- default_tags ----------
+# Keep these identical across every stack, or cost reports split them into separate values.
+
+team    = "platform"
+env     = "mgmt"
+service = "org"
+owner   = "your-handle" # a stable handle or team alias, not a personal email
+
+# ---------- Organization ----------
+
+# aws organizations describe-organization --query Organization.Id --output text
+# This is the o-... ID, not the 12-digit account ID.
+organization_id = "o-xxxxxxxxxx"
+
+# aws organizations list-aws-service-access-for-organization
+# Keep everything it returns, then add cloudtrail.amazonaws.com.
+# Terraform removes any service missing from this list.
+org_service_access_principals = [
+  "sso.amazonaws.com",
+  "cloudtrail.amazonaws.com",
+]
+
+# Optional. Defaults to ["Infrastructure", "Workloads"].
+# organizational_units = ["Infrastructure", "Workloads"]
+
+# Each email must be unique across all of AWS, and becomes that account's root-recovery
+# address: whoever controls the inbox can reset root. Sub-addressing (name+tag@domain)
+# delivers them all to one inbox. Send a test email to each address before applying.
+# Check carefully: changing an email later is manual, and closing an account takes 90 days.
+accounts = {
+  "shared-services" = { email = "you+nw-shared@example.com", ou = "Infrastructure" }
+  "workloads-dev"   = { email = "you+nw-dev@example.com", ou = "Workloads" }
+  "workloads-prod"  = { email = "you+nw-prod@example.com", ou = "Workloads" }
+}
+
+# ---------- SCPs ----------
+
+# Optional. Defaults to ["Workloads"]. Add "Infrastructure" once the SCPs are tested (ADR 0021).
+# scp_target_ous = ["Workloads"]
+
+# Optional. Global-service actions the region lock exempts. See the default in
+# variables.tf, and record any addition in ADR 0022.
+# region_lock_exempt_actions = ["iam:*", "organizations:*", "sts:*", ...]
+
+# ---------- CloudTrail ----------
+
+# Same suffix as the state bucket in terraform/bootstrap. The log bucket becomes
+# nw-<suffix>-cloudtrail, so it must be globally unique.
+bucket_suffix = "your-suffix"
+
+# Optional. Defaults to 365.
+# cloudtrail_log_retention_days = 365
+
+# ---------- Budget (imported) ----------
+
+# Must match the budget you created by hand exactly, or the import fails:
+#   aws budgets describe-budgets --account-id <management-account-id> \
+#     --query 'Budgets[].[BudgetName,BudgetLimit.Amount,BudgetLimit.Unit]' --output text
+budget_name         = "My Monthly Cost Budget"
+budget_limit_amount = "20.0"
+budget_limit_unit   = "USD"
+
+# The threshold of the existing ACTUAL alert. budget.tf lists every alert; if yours
+# differ, edit budget.tf to match before planning:
+#   aws budgets describe-notifications-for-budget --account-id <id> --budget-name "<name>"
+budget_actual_threshold_percent = 100
+budget_alert_emails             = ["you@example.com"]
+
+# ---------- Identity Center ----------
+
+# Existing Identity Center usernames (the sign-in name, not necessarily the email):
+#   aws identitystore list-users --identity-store-id <d-...> --query 'Users[].UserName'
+# Get the store ID from: aws sso-admin list-instances --query 'Instances[0].IdentityStoreId'
+sso_admin_usernames = ["your-username"]
