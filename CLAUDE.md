@@ -65,7 +65,7 @@ docs/        architecture.md adr/ runbooks/ postmortems/ evidence/ diagrams/ int
 
 **Git**
 - Branch from `main`, open a PR, never push to `main` directly.
-- Conventional commits: `feat(eks): add karpenter nodepool`, `fix(ci): pin terraform 1.9`, `docs(adr): 0004 single nat in dev`.
+- Conventional commits: `feat(eks): add karpenter nodepool`, `fix(ci): pin terraform 1.9`, `docs(adr): 0040 single nat in dev`.
 - One logical change per PR. PR description: what, why, how tested, cost impact.
 
 ## 4. CV and job-application requirements
@@ -87,7 +87,7 @@ The owner must be able to explain every design choice on a whiteboard.
 1. **Explain before writing.** For any non-trivial change, first give a short plan: what, why, alternatives considered, trade-off. Then write code only if asked or agreed.
 2. **The owner writes the core.** Terraform modules, the tenant module, pipeline YAML, SLO and alert rules are written by the owner. Claude reviews, explains, debugs and suggests. Claude may write boilerplate freely: Dockerfiles, test scaffolding, Grafana dashboard JSON, Makefile targets, README formatting.
 3. **No unexplained magic.** Every generated block gets a one-line comment explaining *why*, not *what*.
-4. **Record decisions.** When a meaningful choice is made, draft an ADR in `docs/adr/NNNN-title.md` (context, decision, alternatives, consequences).
+4. **Record decisions.** When a meaningful choice is made, draft an ADR in `docs/adr/NNNN-title.md` (context, decision, alternatives, consequences). Numbering: roadmap day followed by a decision digit, so Day 2 decisions are `0020`, `0021`, `0022`; `0000` is the template.
 5. **Update the interview log.** After each milestone or incident drill, add entries to `docs/interview/interview-readiness.md`: likely questions, the owner's answer in their words, and a STAR story if relevant. Prompt the owner to do this if they forget.
 6. **Quiz on request.** When the owner says "quiz me", ask 5 interview questions about the most recent work and give feedback on the answers.
 

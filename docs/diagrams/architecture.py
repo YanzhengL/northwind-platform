@@ -108,7 +108,7 @@ def detailed() -> None:
                 sso = SingleSignOn("IAM Identity\nCenter")
                 trail = Cloudtrail("Org CloudTrail")
                 budget = Budgets("Budgets\n£20/month")
-                # Bootstrap lives here until shared-services exists (ADR 0003).
+                # Bootstrap lives here until shared-services exists (ADR 0013).
                 with Cluster("bootstrap (applied by hand)", graph_attr=CLUSTER):
                     state = SimpleStorageServiceS3("Terraform state\n(S3, lockfile)")
                     gha_roles = IdentityAndAccessManagementIamRole(

@@ -1,4 +1,4 @@
-# 0001. One monorepo for infrastructure, GitOps config and apps
+# 0010. One monorepo for infrastructure, GitOps config and apps
 
 - **Status:** accepted
 - **Date:** 2026-10-12
