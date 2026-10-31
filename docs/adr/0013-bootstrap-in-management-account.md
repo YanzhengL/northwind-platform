@@ -34,7 +34,7 @@ location. Move the state bucket and the CI roles to `shared-services` once that 
 
 ## Consequences
 - The diagram shows the bootstrap resources inside the management account, matching what is deployed.
-- Until migration, the apply role's trust policy and the protected `production` environment
+- Until migration, the apply role's trust policy and the protected `terraform-apply` environment
   (ADR 0012) are the main controls on org-wide admin access. Keep that environment locked to `main`
   with a required reviewer.
 - Cost is unchanged: one S3 bucket holding a few KB of state; IAM and OIDC are free.
