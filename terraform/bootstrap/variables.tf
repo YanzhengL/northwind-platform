@@ -65,6 +65,6 @@ variable "github_apply_branch" {
 variable "github_apply_environment" {
   description = "GitHub Actions environment whose jobs may assume the apply role. Set to null to trust only the branch."
   type        = string
-  default     = "production"
+  default     = "terraform-apply"
   nullable    = true
 }

@@ -124,7 +124,7 @@ resource "aws_iam_role" "gha_apply" {
 # Broad on purpose for now: apply has to create whatever later stacks define.
 # Tighten to a scoped policy once the set of managed services is known (#3).
 resource "aws_iam_role_policy_attachment" "gha_apply_admin" {
-  #checkov:skip=CKV_AWS_274:Apply role creates all later stacks; trust limited to main/production (ADR 0012). Scope down in #3
+  #checkov:skip=CKV_AWS_274:Apply role creates all later stacks; trust limited to main/terraform-apply env (ADR 0012). Scope down in #3
   role       = aws_iam_role.gha_apply.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }

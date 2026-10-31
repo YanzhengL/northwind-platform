@@ -37,5 +37,5 @@ github_repo  = "northwind-platform"
 # github_apply_branch = "main"
 
 # Optional. Jobs in this GitHub environment may assume the apply role.
-# Defaults to "production"; set to null to trust only the branch.
-# github_apply_environment = "production"
+# Defaults to "terraform-apply"; set to null to trust only the branch.
+# github_apply_environment = "terraform-apply"
