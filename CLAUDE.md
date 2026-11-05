@@ -4,16 +4,9 @@ Instructions for Claude Code working in this repository. Read this fully before 
 
 ## 1. What this repository is
 
-A portfolio prototype of an **AWS internal developer platform** for a fictional company, Northwind Logistics: about 80 staff, 35 engineers in 5 product teams. The repo owner is the platform team. The platform is the product; product teams are its users.
+A prototype **AWS internal developer platform** for a fictional company, Northwind Logistics: about 80 staff, 35 engineers in 5 product teams. The maintainer is the platform team. The platform is the product; product teams are its users.
 
-The repo serves three goals, in this order of priority:
-
-1. **Platform** — a working, secure, observable AWS platform built entirely as code.
-2. **CV and job applications** — evidence that the owner is a credible mid-level AWS Platform Engineer in the UK market (see section 4).
-3. **Interview readiness** — the owner must be able to explain and defend every line
-   (see section 5).
-
-If a request conflicts with goal 3 (for example "just generate the whole module"), help the owner understand the code rather than writing it silently.
+The goal is a working, secure, observable AWS platform built entirely as code, where every design choice is recorded and can be explained.
 
 ## 2. Platform requirements
 
@@ -46,7 +39,7 @@ gitops/      bootstrap/ platform/ tenants/ apps/<app>/{base,dev,prod}/
 teams/       one YAML per team (self-service entry point)
 apps/        orders-api/ payments-worker/
 tools/       Python CLIs with pytest tests
-docs/        architecture.md adr/ runbooks/ postmortems/ evidence/ diagrams/ interview/
+docs/        architecture.md adr/ runbooks/ postmortems/ evidence/ diagrams/
 ```
 
 **Terraform**
@@ -68,30 +61,22 @@ docs/        architecture.md adr/ runbooks/ postmortems/ evidence/ diagrams/ int
 - Conventional commits: `feat(eks): add karpenter nodepool`, `fix(ci): pin terraform 1.9`, `docs(adr): 0040 single nat in dev`.
 - One logical change per PR. PR description: what, why, how tested, cost impact.
 
-## 4. CV and job-application requirements
-
-The repo will be linked from the owner's CV and job applications. Optimise for a reviewer who spends **5 minutes**.
-
-- `README.md` must always show: one-line pitch, architecture diagram, "what this demonstrates" table, demo video/screenshots, quick start, cost, links to ADRs/runbooks/postmortems.
+**Docs and evidence**
+- ADRs live in `docs/adr/NNNN-title.md` (context, decision, alternatives, consequences). Numbering: build day followed by a decision digit, so Day 2 decisions are `0020`, `0021`, `0022`; `0000` is the template.
 - `docs/diagrams/architecture.py` is the single source of the diagrams. When a component is added or removed, update it **in the same PR** and run `make diagram`.
-  - `architecture.png` — detailed, for README and interviews.
-  - `architecture-cv.png` — about 8 boxes, for the CV. Keep it simple.
+  - `architecture.png` — detailed view.
+  - `architecture-cv.png` — summary view, about 8 boxes. Keep it simple.
 - `docs/evidence/` holds proof captured from real runs: Grafana SLO panels, Slack alerts, Argo CD trees, PR plan comments, Infracost comments. Name files `YYYY-MM-DD-<what>.png` and reference them from the README or postmortems.
-- Each GitHub milestone ends with a tag (`v0.1-foundation` … `v0.6-drills`) and short release notes.
-- Never commit anything that weakens the story: secrets, account IDs in screenshots (blur them), `TODO: fix later` without an issue link, disabled security checks.
+- Each milestone ends with a tag (`v0.1-foundation` … `v0.6-drills`) and short release notes.
 
-## 5. Interview-readiness rules (how Claude should work here)
-
-The owner must be able to explain every design choice on a whiteboard.
+## 4. How Claude works here
 
 1. **Explain before writing.** For any non-trivial change, first give a short plan: what, why, alternatives considered, trade-off. Then write code only if asked or agreed.
-2. **The owner writes the core.** Terraform modules, the tenant module, pipeline YAML, SLO and alert rules are written by the owner. Claude reviews, explains, debugs and suggests. Claude may write boilerplate freely: Dockerfiles, test scaffolding, Grafana dashboard JSON, Makefile targets, README formatting.
+2. **The maintainer writes the core.** Terraform modules, the tenant module, pipeline YAML, SLO and alert rules are written by the maintainer. Claude reviews, explains, debugs and suggests. Claude may write boilerplate freely: Dockerfiles, test scaffolding, Grafana dashboard JSON, Makefile targets, README formatting.
 3. **No unexplained magic.** Every generated block gets a one-line comment explaining *why*, not *what*.
-4. **Record decisions.** When a meaningful choice is made, draft an ADR in `docs/adr/NNNN-title.md` (context, decision, alternatives, consequences). Numbering: roadmap day followed by a decision digit, so Day 2 decisions are `0020`, `0021`, `0022`; `0000` is the template.
-5. **Update the interview log.** After each milestone or incident drill, add entries to `docs/interview/interview-readiness.md`: likely questions, the owner's answer in their words, and a STAR story if relevant. Prompt the owner to do this if they forget.
-6. **Quiz on request.** When the owner says "quiz me", ask 5 interview questions about the most recent work and give feedback on the answers.
+4. **Record decisions.** When a meaningful choice is made, draft an ADR (see section 3).
 
-## 6. Commands
+## 5. Commands
 
 ```
 make bootstrap     # one-off: state bucket + OIDC roles (run with management credentials)
@@ -104,8 +89,9 @@ make lint          # pre-commit run --all-files
 make test          # pytest for apps and tools
 ```
 
-## 7. Safety
+## 6. Safety
 
-- Never run `terraform apply`, `terraform destroy`, `kubectl delete`, or any AWS CLI command that creates, changes or deletes resources without the owner's explicit go-ahead in this session.
-- Never print or commit secrets, tokens, webhook URLs or account IDs.
+- Never run `terraform apply`, `terraform destroy`, `kubectl delete`, or any AWS CLI command that creates, changes or deletes resources without the maintainer's explicit go-ahead in this session.
+- Never print or commit secrets, tokens, webhook URLs or account IDs. Blur account IDs in screenshots.
+- Never commit `TODO: fix later` without an issue link, or a disabled security check.
 - If unsure whether something costs money or is reversible, ask first.
