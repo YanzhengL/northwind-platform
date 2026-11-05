@@ -26,6 +26,8 @@ override.tf.json
 *.key
 kubeconfig*
 .aws/
+# Personal Claude Code instructions (CV and interview prep); CLAUDE.md is the public part
+CLAUDE.local.md
 
 # Python
 __pycache__/
