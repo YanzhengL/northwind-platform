@@ -4,7 +4,7 @@
 - **Date:** 2026-10-31
 
 ## Context
-CLAUDE.md requires Checkov and Trivy in CI and Infracost on Terraform PRs. What's left to decide is
+The platform security requirements call for Checkov and Trivy in CI and Infracost on Terraform PRs. What's left to decide is
 which tools **block** a merge and which only **inform**, and how findings reach the PR.
 
 - **Checkov** is step 4 of the `static` job in `ci.yml` (ADR 0030). A failing step only shows a red X,
@@ -37,7 +37,7 @@ Code scanning is free on public repos and needs `security-events: write` on the 
 | --- | --- | --- |
 | Checkov blocks, Trivy and Infracost report (chosen) | One enforcing tool, so there is one place to manage skips; findings visible inline; no credentials issued for code that fails it | Plan output is only seen once Checkov passes, so a finding must be fixed or skipped with a reason first |
 | Both Checkov and Trivy block | Wider coverage | Two skip syntaxes for overlapping rules; double the noise |
-| Trivy only (it replaced tfsec) | One tool for IaC and images | CLAUDE.md requires Checkov; existing skips (`CKV_AWS_274`) use Checkov syntax |
+| Trivy only (it replaced tfsec) | One tool for IaC and images | Checkov is a platform requirement; existing skips (`CKV_AWS_274`) use Checkov syntax |
 | Infracost blocks above a threshold | Hard cost guardrail | Today's numbers are ~£0; a gate would be tuned blind. The £20 budget alarm is the real backstop |
 
 ## Consequences

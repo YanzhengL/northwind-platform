@@ -12,7 +12,7 @@ A Terraform plan of `terraform/org` would print:
 - each member account's root-recovery email (whoever controls that inbox can reset root),
 - Identity Center usernames.
 
-CLAUDE.md forbids publishing account IDs, and these inputs live in gitignored `terraform.tfvars` and
+The platform rules forbid publishing account IDs, and these inputs live in gitignored `terraform.tfvars` and
 `*.tfbackend` files, so CI has no copy of them yet.
 
 Two GitHub behaviours constrain where those inputs can live:

@@ -14,7 +14,7 @@ actors explicitly.
 The repo has one owner. GitHub doesn't allow approving your own PR, so a required approval count
 above zero would make every merge impossible without bypass.
 
-CLAUDE.md says no ClickOps: anything set up by hand is imported or recorded in an ADR.
+The platform rules say no ClickOps: anything set up by hand is imported or recorded in an ADR.
 
 ## Decision
 One ruleset named `protect-main`, targeting `main`, **active**, with no bypass actors:
