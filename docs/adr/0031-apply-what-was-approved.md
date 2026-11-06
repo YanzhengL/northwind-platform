@@ -1,6 +1,6 @@
 # 0031. Re-plan and apply inside the approved job
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 
 ## Context
@@ -45,7 +45,4 @@ reviewer can see.
   reviewed artifact". Then move to the encrypted-artifact option.
 
 ## Interview angle
-"How do you know you applied what was reviewed?" - Merges are serialised per stack and the apply job
-re-plans from `main` after approval, so it always matches current state. I didn't ship the saved plan
-as an artifact because on a public repo it exposes inputs in plaintext. If I needed the exact-artifact
-guarantee I'd encrypt it.
+"How do you know you applied what was reviewed?" - "Strictly, I don't guarantee it, and that's a deliberate trade-off. The apply job re-plans from main after approval, so what's applied can differ from the PR plan if another merge or some drift landed in between. Concurrency means only one apply runs per stack, and the job summary records what was actually applied. If it's wrong, I revert. I accept that because I'm the only merger today, and shipping the saved plan would expose plaintext inputs on a public repo. With more mergers, I'd move to an encrypted plan artifact."

@@ -1,6 +1,6 @@
 # 0035. Protect `main` with a GitHub ruleset, configured by hand
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 
 ## Context

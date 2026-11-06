@@ -1,6 +1,6 @@
 # 0033. Checkov blocks merges; Trivy and Infracost report
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 
 ## Context
@@ -49,5 +49,4 @@ Code scanning is free on public repos and needs `security-events: write` on the 
 
 ## Interview angle
 "What stops an insecure change from merging?" - Checkov runs as a required check and blocks.
-Exceptions are inline with a reason and an issue, so they're auditable. Trivy and Infracost report on
-the PR so the reviewer sees security and cost before approving, without one tool's noise blocking work.
+Exceptions are inline with a reason and an issue, so they're auditable. Trivy and Infracost report on the PR, so the reviewer sees security and cost before approving. I keep a single blocking tool so there's one place to manage exceptions. A second gate would add duplicate findings and false failures, and people would start skipping checks by habit. I'll promote Trivy's HIGH/CRITICAL findings to blocking once I know how noisy they are.

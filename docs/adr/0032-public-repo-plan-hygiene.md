@@ -1,6 +1,6 @@
 # 0032. Keep account IDs and personal data out of public CI output
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 
 ## Context
@@ -24,17 +24,26 @@ Two GitHub behaviours constrain where those inputs can live:
   masked at all.
 
 ## Decision
-1. **Inputs are repository secrets**: one tfvars secret per stack (`TFVARS_ORG`, `TFVARS_BOOTSTRAP`)
-   and `TF_STATE_BUCKET`. Jobs write them to files and never echo them.
-2. **Mask the account ID first.** The first step after OIDC login reads the account ID from
-   `aws sts get-caller-identity` and registers it with `::add-mask::`. ARNs then show `***`.
-3. **Let Terraform redact the rest.** Mark `organization_id` and similar scalar inputs
-   `sensitive = true`. `accounts` holds the emails, but `sensitive` applies to a whole variable, and
-   Terraform refuses a sensitive value in `for_each`. So mark `accounts` sensitive too, and iterate
-   over `nonsensitive(toset(keys(var.accounts)))`: the account names are not secret, the emails stay
-   redacted. The same wrapper is needed where `keys(var.accounts)` feeds Identity Center assignments.
+1. **Inputs are repository secrets**: one tfvars secret per stack (`TFVARS_ORG`, `TFVARS_BOOTSTRAP`),
+   `TF_STATE_BUCKET`, and the role ARNs `AWS_PLAN_ROLE_ARN` and `AWS_APPLY_ROLE_ARN`, which contain the
+   account ID. Jobs write the tfvars to files and never echo any of them.
+2. **Mask identifiers first.** The first step after OIDC login reads every account ID, the organization
+   ID, the account emails and the Identity Center usernames from live AWS and registers each with
+   `::add-mask::`. ARNs then show `***`, and a new member account is masked with no workflow change. If
+   a lookup fails, the job stops before Terraform prints anything.
+3. **Let Terraform redact the rest.** Mark `organization_id`, `budget_alert_emails` and
+   `sso_admin_usernames` `sensitive = true`, along with the `organization_id` output. `accounts` holds
+   the emails, but `sensitive` applies to a whole variable, and Terraform refuses a sensitive value in
+   `for_each`. So mark `accounts` sensitive too, and iterate over
+   `nonsensitive(toset(keys(var.accounts)))`: the account names are not secret, the emails stay
+   redacted. The same wrapper is needed where `keys(var.accounts)` feeds Identity Center assignments,
+   and `sso_admin_usernames` needs `nonsensitive()` for the same reason.
 4. **The PR comment is a summary**: resource address and action (create, update, replace, delete) from
-   `terraform show -json`, not the full diff. The full plan stays in the job log, redacted by steps 2-3.
+   `terraform show -json`, not the full diff. Usernames are removed from Identity Center addresses,
+   because GitHub does not mask PR comments.
+5. **The job log shows `terraform show`, not raw plan output.** `terraform plan` stdout is discarded
+   because `Refreshing state... [id=...]` prints raw IDs for every resource. `terraform show` omits those
+   lines, and steps 2-3 redact what remains. Apply strips `[id=...]` from its progress lines.
 
 ## Alternatives considered
 | Option | Pros | Cons |
@@ -52,9 +61,14 @@ Two GitHub behaviours constrain where those inputs can live:
   `arn:aws:sts::***:assumed-role/nw-gha-apply/...`", which still proves OIDC and the role name.
 - Before saving evidence screenshots, check them for unmasked IDs: masking applies to logs, not to the
   AWS console.
+- Marking existing values sensitive makes the next plan show in-place updates, once. The values don't
+  change, only their sensitivity marking in state, so the plan is not empty until that change is applied.
+- `nw-gha-plan` and `nw-gha-apply` must be able to read Organizations and Identity Center, or the mask
+  step fails and the job stops.
 
 ## Interview angle
 "Your repo is public. How do you stop your plan leaking account details?" - Inputs come from repository
-secrets, the account ID is masked at runtime, identifying inputs are marked sensitive so Terraform
-redacts them, and the PR comment lists only addresses and actions. I kept them out of environment
-secrets because that changes the OIDC subject the plan role trusts.
+secrets, account IDs and other identifiers are read from AWS and masked at runtime, identifying inputs
+are marked sensitive so Terraform redacts them, and raw plan output never reaches the log. The PR
+comment lists only addresses and actions, because GitHub doesn't mask comments. I kept the inputs out of
+environment secrets because that changes the OIDC subject the plan role trusts.

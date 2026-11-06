@@ -1,6 +1,6 @@
 # 0030. One CI workflow: static checks in order, then credentials only for plan and apply
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-11-03
 
 ## Context
@@ -79,7 +79,4 @@ Rules:
   updated (ADR 0035).
 
 ## Interview angle
-"Walk me through your Terraform CI." - One workflow. A static job runs fmt, validate, tflint and Checkov
-in order, cheapest first, with no credentials. Only if they all pass does plan assume a read-only role
-through OIDC. Check config is defined once in pre-commit, so my laptop and CI agree. One always-running
-gate job is the required check, so path filtering never blocks a merge.
+"Walk me through your Terraform CI." - One workflow. On a PR, a static job runs gitleaks, then fmt, validate, tflint and Checkov in order, cheapest first, with no credentials. Only if they pass does plan assume a read-only role through OIDC; its one write is the state lock file. After merge, apply re-plans with a separate role, behind an environment approval. Hook arguments live in pre-commit, so my laptop and CI run the same checks, except Checkov, which CI calls directly for SARIF. One always-running gate job is the required check, so path filtering never blocks a merge.

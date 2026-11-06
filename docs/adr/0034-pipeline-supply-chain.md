@@ -1,6 +1,6 @@
 # 0034. Pin everything the pipeline runs, and give each job only the permissions it needs
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-31
 
 ## Context
@@ -25,8 +25,10 @@ dependencies are part of the attack surface.
    `terraform providers lock -platform=linux_amd64 -platform=darwin_arm64`. CI then fails if a provider
    binary doesn't match.
 4. **Least-privilege tokens.** `permissions: {}` at workflow level. Each job declares only what it
-   uses: `id-token: write` only on plan and apply, `pull-requests: write` only on comment jobs,
-   `security-events: write` only on SARIF upload. `actions/checkout` uses `persist-credentials: false`.
+   uses: `contents: read` on jobs that check out code, `id-token: write` only on `plan` and apply,
+   `pull-requests: write` only on the jobs that comment (`plan`, `infracost`), and
+   `security-events: write` only on `static`, which uploads SARIF. Permissions apply per job, not per
+   step, so every step in a job shares them. `actions/checkout` uses `persist-credentials: false`.
 
 5. **Workflows are linted.** `actionlint` (syntax and expression errors) and `zizmor` (security
    mistakes such as script injection from PR titles, over-broad permissions, unpinned actions) run as
@@ -45,8 +47,14 @@ dependencies are part of the attack surface.
 - Dependabot PRs go through the same checks and need the same review. A SHA bump is still a code change.
 - Terraform's own version is pinned exactly in CI but kept as a range in `required_version`, so the
   laptop and CI can differ by patch version. Align them if a bug ever shows up in only one place.
+- `plan` holds both `id-token: write` and `pull-requests: write` because it posts its own summary
+  comment (ADR 0030), so any step in that job can reach both. A separate comment job would remove the
+  overlap, at the cost of passing the summary between jobs.
+- Every step in `static` gets `security-events: write`, including the Checkov and Trivy runs, because
+  the SARIF upload is a step in that job (ADR 0033).
 
 ## Interview angle
 "How do you secure the pipeline itself?" - Every action is pinned to a commit SHA because tags can be
 moved, as happened with tj-actions in 2025, and Dependabot keeps the pins current. Tools and providers
-are version-locked with hashes. Tokens are scoped per job, so a comment step can never get AWS credentials.
+are version-locked with hashes. Tokens are scoped per job, so the Infracost job can comment on a PR but
+can't get AWS credentials. The `plan` job is the exception: it has both, because it posts its own summary.
