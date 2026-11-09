@@ -6,6 +6,7 @@
 - [ ] `make lint` passes
 - [ ] `terraform plan` reviewed (paste summary or link the PR comment)
 - [ ] Evidence captured in `docs/evidence/` (if user-visible)
+- [ ] New variables holding an ID, email or name are marked `sensitive = true` (ADR 0032)
 
 ## Cost impact
 <!-- e.g. "none", "+$0.05/h while running", "Infracost comment below" -->

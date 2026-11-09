@@ -1,0 +1,10 @@
+# SHA pins never move on their own, so this is what keeps them current (ADR 0034).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # A hijacked release is usually caught within days, so never adopt one on day zero.
+    cooldown:
+      default-days: 7
