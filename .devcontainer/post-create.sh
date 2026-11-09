@@ -7,7 +7,8 @@ ARGOCD_VERSION="latest"
 K9S_VERSION="latest"
 
 sudo apt-get update -y
-sudo apt-get install -y --no-install-recommends graphviz make jq unzip
+# shellcheck: actionlint silently skips run: scripts without it, but CI runners have it.
+sudo apt-get install -y --no-install-recommends graphviz make jq unzip shellcheck
 
 python -m pip install --upgrade pip
 pip install --user -r requirements-dev.txt
