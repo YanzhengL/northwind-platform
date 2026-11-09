@@ -213,7 +213,7 @@ jobs:
           # The marker is how a re-run finds its own comment instead of adding another.
           marker="<!-- terraform-plan:$STACK -->"
           summary=$(terraform -chdir="$TF_DIR" show -json tfplan | jq -r -f .github/scripts/plan-summary.jq)
-          body=$(printf '%s\n### Terraform plan: `%s`\n\n%s\n\nRedacted plan: [job log](%s)\n' \
+          body=$(printf "%s\n### Terraform plan: `%s`\n\n%s\n\nRedacted plan: [job log](%s)\n" \
             "$marker" "$STACK" "$summary" "$RUN_URL")
           echo "$body" >> "$GITHUB_STEP_SUMMARY"
 
