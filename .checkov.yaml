@@ -1,0 +1,6 @@
+# Shared by the pre-commit hook and the CI CLI call. No skip-check here: accepted risks
+# are skipped inline with a reason and an issue link (ADR 0033).
+compact: true
+quiet: true
+framework:
+  - terraform

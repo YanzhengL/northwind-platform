@@ -1,7 +1,7 @@
-# Run `pre-commit autoupdate` once after setup to move these to the latest releases.
+# Hooks are frozen to commit SHAs (ADR 0034). Update with `make tools-update`, then review the diff.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -14,21 +14,40 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
+    rev: 2ca41cc1372d1e939a6a879f18cdc19fc1cac1ce # frozen: v8.30.0
     hooks:
       - id: gitleaks
+      # The stock hook scans staged files only, so it finds nothing on a clean CI checkout.
+      - id: gitleaks
+        alias: gitleaks-history
+        name: Detect hardcoded secrets (full git history)
+        entry: gitleaks git --redact --verbose
+        stages: [manual]
 
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.109.2
+    rev: 4c4437d784e93cacb1f05f1d7bc28e4354fafd20 # frozen: v1.109.4
     hooks:
       - id: terraform_fmt
+      # The hook runs init -backend=false itself, so validate needs no AWS credentials.
+      - id: terraform_validate
       - id: terraform_tflint
+      # Same .checkov.yaml as the CLI call in ci.yml, so laptop and CI apply the same rules.
       - id: terraform_checkov
-        args: [--args=--quiet, --args=--compact]
+        args: [--args=--config-file=__GIT_WORKING_DIR__/.checkov.yaml]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.0
+    rev: c0f278f1254ccc8fb09676bcdb8d847e7db493e5 # frozen: v0.17.4
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca # frozen: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: 06a39750ec31860bb44f2acf67182c40016cd1e7 # frozen: v1.32.0
+    hooks:
+      - id: zizmor

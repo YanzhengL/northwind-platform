@@ -63,4 +63,4 @@ test: ## Run Python tests for apps and tools
 	pytest -q apps tools
 
 tools-update: ## Update pre-commit hook versions
-	pre-commit autoupdate
+	pre-commit autoupdate --freeze
