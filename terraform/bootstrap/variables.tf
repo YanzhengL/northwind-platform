@@ -56,6 +56,24 @@ variable "github_repo" {
   type        = string
 }
 
+variable "github_owner_id" {
+  description = "Numeric ID of the repository owner (gh api users/<owner> --jq .id). Part of GitHub's immutable OIDC sub claim."
+  type        = string
+  validation {
+    condition     = can(regex("^[0-9]+$", var.github_owner_id))
+    error_message = "github_owner_id must be the numeric GitHub ID."
+  }
+}
+
+variable "github_repo_id" {
+  description = "Numeric ID of the repository (gh api repos/<owner>/<repo> --jq .id). Part of GitHub's immutable OIDC sub claim."
+  type        = string
+  validation {
+    condition     = can(regex("^[0-9]+$", var.github_repo_id))
+    error_message = "github_repo_id must be the numeric GitHub ID."
+  }
+}
+
 variable "github_apply_branch" {
   description = "Branch whose pushes may assume the apply role."
   type        = string
