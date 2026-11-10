@@ -16,7 +16,8 @@ resource "aws_identitystore_group" "platform_admins" {
 }
 
 data "aws_identitystore_user" "admin" {
-  for_each = toset(var.sso_admin_usernames)
+  # for_each refuses a sensitive value. CI masks these names and the PR comment omits them.
+  for_each = nonsensitive(toset(var.sso_admin_usernames))
 
   identity_store_id = local.identity_store_id
 
@@ -83,7 +84,7 @@ resource "aws_ssoadmin_managed_policy_attachment" "this" {
 
 locals {
   account_assignments = {
-    for pair in setproduct(keys(local.permission_sets), keys(var.accounts)) :
+    for pair in setproduct(keys(local.permission_sets), nonsensitive(keys(var.accounts))) :
     "${pair[0]}/${pair[1]}" => { permission_set = pair[0], account = pair[1] }
   }
 }

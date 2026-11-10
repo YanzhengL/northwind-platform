@@ -1,6 +1,7 @@
 output "organization_id" {
   description = "ID of the organization."
   value       = aws_organizations_organization.this.id
+  sensitive   = true
 }
 
 output "ou_ids" {
