@@ -2,20 +2,24 @@ locals {
   github_oidc_host = "token.actions.githubusercontent.com"
   github_repo_path = "${var.github_owner}/${var.github_repo}"
 
-  # Exact sub claims (no wildcards). GitHub's default formats:
-  #   pull_request:   repo:OWNER/REPO:pull_request
-  #   branch push:    repo:OWNER/REPO:ref:refs/heads/BRANCH
-  #   environment:    repo:OWNER/REPO:environment:NAME
-  # Note: when a job declares `environment:`, GitHub sends the environment
-  # form of sub, NOT the ref form - so both are listed for the apply role.
+  # The repo uses immutable subject claims: numeric IDs pin the trust, so a deleted-and-recreated
+  # repo or owner with the same name cannot assume these roles.
+  github_sub_prefix = "repo:${var.github_owner}@${var.github_owner_id}/${var.github_repo}@${var.github_repo_id}"
+
+  # Exact sub claims (no wildcards). Immutable formats:
+  #   pull_request:   repo:OWNER@ID/REPO@ID:pull_request
+  #   branch push:    repo:OWNER@ID/REPO@ID:ref:refs/heads/BRANCH
+  #   environment:    repo:OWNER@ID/REPO@ID:environment:NAME
+  # (keep the existing environment-vs-ref note)
   plan_subjects = [
-    "repo:${local.github_repo_path}:pull_request",
+    "${local.github_sub_prefix}:pull_request",
   ]
 
   apply_subjects = compact([
-    "repo:${local.github_repo_path}:ref:refs/heads/${var.github_apply_branch}",
-    var.github_apply_environment == null ? "" : "repo:${local.github_repo_path}:environment:${var.github_apply_environment}",
+    "${local.github_sub_prefix}:ref:refs/heads/${var.github_apply_branch}",
+    var.github_apply_environment == null ? "" : "${local.github_sub_prefix}:environment:${var.github_apply_environment}",
   ])
+
 }
 
 # One per AWS account. AWS validates GitHub's certificate against its own
