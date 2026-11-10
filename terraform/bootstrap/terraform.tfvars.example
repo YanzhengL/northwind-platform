@@ -32,6 +32,8 @@ bucket_suffix = "your-suffix"
 # these case-sensitively, so a wrong case means CI can't assume the roles.
 github_owner = "your-github-user-or-org"
 github_repo  = "northwind-platform"
+github_owner_id = "12345678"
+github_repo_id = "123456789"
 
 # Optional. Pushes to this branch may assume the apply role. Defaults to "main".
 # github_apply_branch = "main"

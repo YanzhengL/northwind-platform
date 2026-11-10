@@ -39,10 +39,11 @@ State is encrypted with **SSE-S3 (AES256)**, not SSE-KMS.
 
 | Role | Allowed `sub` claims (exact match, no wildcards) |
 |---|---|
-| `nw-gha-plan` | `repo:<owner>/<repo>:pull_request` |
-| `nw-gha-apply` | `repo:<owner>/<repo>:ref:refs/heads/main`, `repo:<owner>/<repo>:environment:terraform-apply` |
+| `nw-gha-plan` | `repo:<owner>@ID/<repo>@ID:pull_request` |
+| `nw-gha-apply` | `repo:<owner>@ID/<repo>@ID:ref:refs/heads/main`, `repo:<owner>@ID/<repo>@ID:environment:terraform-apply` |
 
 `aud` must be `sts.amazonaws.com` for both. A job that sets `environment:` receives the environment form of `sub`, which is why the apply role lists both.
+The repo has immutable subjects turned on.
 
 ## Usage
 
