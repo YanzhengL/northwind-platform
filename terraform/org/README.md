@@ -10,7 +10,10 @@ AWS Organization guardrails, applied from the management account:
 - The Day 1 £20 budget, imported, plus an 80% forecast alert
 - Identity Center group `nw-platform-admins` with `NwAdmin` / `NwReadOnly` in every member account
 
-This stack is applied **by a human** with SSO credentials (`AWS_PROFILE=admin`), not by CI.
+This stack was applied **by a human** with SSO credentials (`AWS_PROFILE=admin`), not by CI before Day 3.
+
+This stack is planned on PRs and applied by CI on merge, after approval in the `terraform-apply` environment (ADR 0030, ADR 0031). The commands below are for checking it from a laptop with SSO credentials (`AWS_PROFILE=admin`).
+
 State: same bucket as `terraform/bootstrap`, key `org/terraform.tfstate`.
 
 ## Usage

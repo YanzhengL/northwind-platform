@@ -31,6 +31,7 @@ variable "owner" {
 variable "organization_id" {
   description = "ID of the existing organization (o-xxxxxxxxxx), created when IAM Identity Center was enabled. Used once to import it."
   type        = string
+  sensitive   = true
 
   validation {
     condition     = can(regex("^o-[a-z0-9]{10,32}$", var.organization_id))
@@ -66,7 +67,7 @@ variable "accounts" {
     email = string
     ou    = string
   }))
-
+  sensitive = true
   validation {
     condition     = alltrue([for a in values(var.accounts) : can(regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$", a.email))])
     error_message = "Every account needs a valid email address."
@@ -139,6 +140,7 @@ variable "budget_actual_threshold_percent" {
 variable "budget_alert_emails" {
   description = "Email addresses that receive budget alerts."
   type        = list(string)
+  sensitive   = true
 }
 
 # ---------- Identity Center ----------
@@ -146,4 +148,5 @@ variable "budget_alert_emails" {
 variable "sso_admin_usernames" {
   description = "Existing Identity Center usernames to add to the nw-platform-admins group."
   type        = list(string)
+  sensitive   = true
 }

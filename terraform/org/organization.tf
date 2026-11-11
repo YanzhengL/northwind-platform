@@ -31,11 +31,12 @@ resource "aws_organizations_organizational_unit" "this" {
 }
 
 resource "aws_organizations_account" "this" {
-  for_each = var.accounts
+  # Account names are not secret, and for_each refuses a sensitive value (ADR 0032).
+  for_each = nonsensitive(toset(keys(var.accounts)))
 
   name      = each.key
-  email     = each.value.email
-  parent_id = aws_organizations_organizational_unit.this[each.value.ou].id
+  email     = var.accounts[each.key].email
+  parent_id = aws_organizations_organizational_unit.this[var.accounts[each.key].ou].id
 
   # Organizations creates this role in the new account so the management
   # account can get in before Identity Center access exists.
