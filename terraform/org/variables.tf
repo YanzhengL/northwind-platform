@@ -150,3 +150,4 @@ variable "sso_admin_usernames" {
   type        = list(string)
   sensitive   = true
 }
+variable   "bad_format"   { type = string }
