@@ -5,7 +5,7 @@ One-time foundation for everything else in this repo:
 - S3 bucket `nw-<suffix>-tfstate` for Terraform state (versioned, encrypted, private, TLS-only)
 - GitHub Actions OIDC provider (`token.actions.githubusercontent.com`)
 - `nw-gha-plan` role: read-only, assumable only by `pull_request` runs of this repo
-- `nw-gha-apply` role: assumable only from `refs/heads/main` or the configured GitHub environment of this repo
+- `nw-gha-apply` role: assumable only by jobs in the approval-gated `terraform-apply` GitHub environment of this repo
 
 This stack is applied **by a human** with SSO credentials (`AWS_PROFILE=admin`), not by CI.
 
@@ -40,9 +40,9 @@ State is encrypted with **SSE-S3 (AES256)**, not SSE-KMS.
 | Role | Allowed `sub` claims (exact match, no wildcards) |
 |---|---|
 | `nw-gha-plan` | `repo:<owner>@ID/<repo>@ID:pull_request` |
-| `nw-gha-apply` | `repo:<owner>@ID/<repo>@ID:ref:refs/heads/main`, `repo:<owner>@ID/<repo>@ID:environment:terraform-apply` |
+| `nw-gha-apply` | `repo:<owner>@ID/<repo>@ID:environment:terraform-apply` |
 
-`aud` must be `sts.amazonaws.com` for both. A job that sets `environment:` receives the environment form of `sub`, which is why the apply role lists both.
+`aud` must be `sts.amazonaws.com` for both. A job that sets `environment:` receives the environment form of `sub`, so the apply role trusts only that form. A bare `ref:refs/heads/main` subject is deliberately absent: it would match any job on `main` without an environment (including `workflow_dispatch` and `schedule` runs) and skip the approval. The branch restriction is the environment's "deployment branches: main" rule in GitHub (ADR 0012).
 The repo has immutable subjects turned on.
 
 ## Usage

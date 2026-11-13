@@ -6,6 +6,9 @@
   guards every Terraform apply (today the management account, later dev too), not the
   `workloads-prod` account, so `production` was misleading. Per-account environments wait for
   per-account apply roles (#4).
+- **Amended:** 2026-11-13 - removed the `ref:refs/heads/main` subject. It let ungated jobs on `main`
+  (no `environment:`, `workflow_dispatch`, `schedule`) assume the apply role without approval. The
+  environment subject is now the only trust, and `github_apply_environment` can no longer be null.
 
 ## Context
 GitHub Actions gets AWS credentials through OIDC: the trust policy on an IAM role checks the `sub`
@@ -21,7 +24,7 @@ environment jobs. Any workflow on any branch that declares the environment would
 GitHub itself restricts which branches may deploy to that environment.
 
 ## Decision
-Trust `nw-gha-apply` for two exact subjects: pushes to `main` and jobs in the `terraform-apply`
+Trust `nw-gha-apply` for one exact subject: jobs in the `terraform-apply`
 GitHub Environment (`github_apply_environment = "terraform-apply"`). The `terraform-apply` environment is
 configured in GitHub with:
 
@@ -31,8 +34,9 @@ configured in GitHub with:
 ## Alternatives considered
 | Option | Pros | Cons |
 | --- | --- | --- |
-| `main` + protected `terraform-apply` environment (chosen) | Apply only from `main` and only after approval; visible audit trail of approvals in GitHub | Security depends on settings outside Terraform; extra click per apply |
-| `main` only (`github_apply_environment = null`) | Simple; everything is in the trust policy | Every merge applies immediately with no human gate |
+| Protected `terraform-apply` environment subject only, deployments limited to `main` (chosen) | Apply only from `main` and only after approval; visible audit trail of approvals in GitHub | Security depends on settings outside Terraform; extra click per apply |
+| Branch subject only (`ref:refs/heads/main`) | Simple; everything is in the trust policy | Every merge applies immediately with no human gate; any ungated job on `main` (`workflow_dispatch`, `schedule`) also gets admin |
+| Branch subject + environment subject (original decision, replaced 2026-11-13) | Covers both job shapes | The branch subject bypasses the approval gate, so the gate is only as strong as the weakest subject |
 | `terraform-apply` environment with no protection rules | None | Any branch can declare the environment and assume an admin role - worse than no environment |
 | Wildcard `sub` such as `repo:OWNER/REPO:*` | Never breaks | Any branch, PR or environment gets admin; fails least privilege |
 

@@ -10,15 +10,15 @@ locals {
   #   pull_request:   repo:OWNER@ID/REPO@ID:pull_request
   #   branch push:    repo:OWNER@ID/REPO@ID:ref:refs/heads/BRANCH
   #   environment:    repo:OWNER@ID/REPO@ID:environment:NAME
-  # (keep the existing environment-vs-ref note)
   plan_subjects = [
     "${local.github_sub_prefix}:pull_request",
   ]
 
-  apply_subjects = compact([
-    "${local.github_sub_prefix}:ref:refs/heads/${var.github_apply_branch}",
-    var.github_apply_environment == null ? "" : "${local.github_sub_prefix}:environment:${var.github_apply_environment}",
-  ])
+  # Environment subject only: a bare ref:refs/heads/main sub would let ungated jobs on main
+  # (no environment, workflow_dispatch, schedule) assume admin and skip the approval (ADR 0012).
+  apply_subjects = [
+    "${local.github_sub_prefix}:environment:${var.github_apply_environment}",
+  ]
 
 }
 
@@ -90,9 +90,14 @@ resource "aws_iam_role" "gha_plan" {
   max_session_duration = 3600
 }
 
+# Look up AWS-managed policy ARNs instead of hard-coding them (same pattern as terraform/org).
+data "aws_iam_policy" "read_only" {
+  name = "ReadOnlyAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "gha_plan_readonly" {
   role       = aws_iam_role.gha_plan.name
-  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+  policy_arn = data.aws_iam_policy.read_only.arn
 }
 
 # ReadOnlyAccess already allows reading state. The one write plan needs is the
@@ -120,15 +125,20 @@ resource "aws_iam_role_policy" "gha_plan_state_lock" {
 
 resource "aws_iam_role" "gha_apply" {
   name                 = "nw-gha-apply"
-  description          = "GitHub Actions: terraform apply from ${var.github_apply_branch} or the ${coalesce(var.github_apply_environment, "(none)")} environment in ${local.github_repo_path}."
+  description          = "GitHub Actions: terraform apply from jobs in the ${var.github_apply_environment} environment of ${local.github_repo_path}."
   assume_role_policy   = data.aws_iam_policy_document.apply_trust.json
   max_session_duration = 3600
+}
+
+data "aws_iam_policy" "administrator" {
+  #checkov:skip=CKV_AWS_275:Lookup for the apply role's admin attachment; same accepted risk as CKV_AWS_274 below (ADR 0012). Scope down in #3
+  name = "AdministratorAccess"
 }
 
 # Broad on purpose for now: apply has to create whatever later stacks define.
 # Tighten to a scoped policy once the set of managed services is known (#3).
 resource "aws_iam_role_policy_attachment" "gha_apply_admin" {
-  #checkov:skip=CKV_AWS_274:Apply role creates all later stacks; trust limited to main/terraform-apply env (ADR 0012). Scope down in #3
+  #checkov:skip=CKV_AWS_274:Apply role creates all later stacks; trust limited to the approval-gated terraform-apply environment (ADR 0012). Scope down in #3
   role       = aws_iam_role.gha_apply.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  policy_arn = data.aws_iam_policy.administrator.arn
 }
