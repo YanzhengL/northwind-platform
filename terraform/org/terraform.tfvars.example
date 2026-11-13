@@ -71,11 +71,10 @@ budget_name         = "My Monthly Cost Budget"
 budget_limit_amount = "20.0"
 budget_limit_unit   = "USD"
 
-# The threshold of the existing ACTUAL alert. budget.tf lists every alert; if yours
-# differ, edit budget.tf to match before planning:
+# budget.tf lists every alert with literal thresholds. If yours differ, edit budget.tf
+# to match before planning, or the apply deletes the missing ones:
 #   aws budgets describe-notifications-for-budget --account-id <id> --budget-name "<name>"
-budget_actual_threshold_percent = 100
-budget_alert_emails             = ["you@example.com"]
+budget_alert_emails = ["you@example.com"]
 
 # ---------- Identity Center ----------
 
