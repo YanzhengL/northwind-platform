@@ -35,9 +35,6 @@ github_repo  = "northwind-platform"
 github_owner_id = "12345678"
 github_repo_id = "123456789"
 
-# Optional. Pushes to this branch may assume the apply role. Defaults to "main".
-# github_apply_branch = "main"
-
-# Optional. Jobs in this GitHub environment may assume the apply role.
-# Defaults to "terraform-apply"; set to null to trust only the branch.
+# Optional. Only jobs in this GitHub environment may assume the apply role.
+# Defaults to "terraform-apply". Restrict its deployment branches to main in GitHub (ADR 0012).
 # github_apply_environment = "terraform-apply"

@@ -1,6 +1,7 @@
 output "state_bucket_name" {
   description = "Name of the S3 bucket that stores Terraform state. Use it as `bucket` in every backend \"s3\" block."
   value       = aws_s3_bucket.tfstate.bucket
+  sensitive   = true
 }
 
 output "state_bucket_region" {
@@ -11,14 +12,17 @@ output "state_bucket_region" {
 output "github_oidc_provider_arn" {
   description = "ARN of the GitHub Actions OIDC identity provider in this account."
   value       = aws_iam_openid_connect_provider.github.arn
+  sensitive   = true
 }
 
 output "gha_plan_role_arn" {
   description = "ARN of nw-gha-plan. Use as role-to-assume in the pull_request workflow."
   value       = aws_iam_role.gha_plan.arn
+  sensitive   = true
 }
 
 output "gha_apply_role_arn" {
-  description = "ARN of nw-gha-apply. Use as role-to-assume in the main / environment workflow."
+  description = "ARN of nw-gha-apply. Use as role-to-assume in the environment workflow."
   value       = aws_iam_role.gha_apply.arn
+  sensitive   = true
 }

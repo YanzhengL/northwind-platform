@@ -74,15 +74,14 @@ variable "github_repo_id" {
   }
 }
 
-variable "github_apply_branch" {
-  description = "Branch whose pushes may assume the apply role."
-  type        = string
-  default     = "main"
-}
-
 variable "github_apply_environment" {
-  description = "GitHub Actions environment whose jobs may assume the apply role. Set to null to trust only the branch."
+  description = "GitHub Actions environment whose jobs may assume the apply role. Its protection rules (required reviewer, deployment branch main) are the approval gate (ADR 0012)."
   type        = string
   default     = "terraform-apply"
-  nullable    = true
+  # Required: the environment subject is the only apply trust, so null or "" would leave a policy nothing can match.
+  nullable = false
+  validation {
+    condition     = length(trimspace(var.github_apply_environment)) > 0
+    error_message = "github_apply_environment must be a non-empty GitHub environment name."
+  }
 }
