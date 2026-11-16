@@ -1,5 +1,6 @@
-# Tag policies fix the spelling and case of tag keys across the org. They don't
-# make a tag mandatory: default_tags in every provider and Checkov in CI do that.
+# Tag policies fix the spelling and case of tag keys across the org. They don't make
+# a tag mandatory: default_tags in every provider adds the tags, and the Infracost
+# tagging policy checks them on every PR (ADR 0037).
 # No "enforced_for" block, so this only reports non-compliance and never blocks a create.
 resource "aws_organizations_policy" "tags" {
   name        = "nw-mandatory-tags"
