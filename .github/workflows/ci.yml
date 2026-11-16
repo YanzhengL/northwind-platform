@@ -300,7 +300,10 @@ jobs:
         run: bash .github/scripts/mask-aws-identifiers.sh
       - name: Show the assumed role
         # Printed after masking, so the log proves OIDC without showing the account ID.
-        run: aws sts get-caller-identity --query Arn --output text
+        run: |
+          # Field 6 of an STS ARN is "assumed-role/<role>/<session>": the role without the account ID.
+          aws sts get-caller-identity --query Arn --output text | cut -d: -f6
+
       - name: Write stack inputs
         env:
           TFVARS_ORG: ${{ secrets.TFVARS_ORG }}
