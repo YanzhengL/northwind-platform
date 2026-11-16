@@ -47,7 +47,8 @@ data "aws_iam_policy_document" "baseline" {
     resources = ["*"]
   }
 
-  # Defence in depth: still protects the log bucket if it moves to shared-services (#4).
+  # Not effective while the bucket is in the management account (SCPs never apply there);
+  # takes effect once the bucket moves to a member account (#4).
   statement {
     sid    = "DenyLogBucketChanges"
     effect = "Deny"

@@ -7,12 +7,10 @@ AWS Organization guardrails, applied from the management account:
 - SCPs: region lock (ADR 0022) and baseline guardrails (ADR 0021), attached per OU via `scp_target_ous`
 - Tag policy for `team`, `env`, `service`, `owner` (report-only)
 - Organization CloudTrail trail and its log bucket (management account for now, #4)
-- The Day 1 £20 budget, imported, plus an 80% forecast alert
+- The Day 1 $20 budget, imported with its three alerts (actual 85% and 100%, forecast 100%), plus an 80% forecast alert
 - Identity Center group `nw-platform-admins` with `NwAdmin` / `NwReadOnly` in every member account
 
-This stack was applied **by a human** with SSO credentials (`AWS_PROFILE=admin`), not by CI before Day 3.
-
-This stack is planned on PRs and applied by CI on merge, after approval in the `terraform-apply` environment (ADR 0030, ADR 0031). The commands below are for checking it from a laptop with SSO credentials (`AWS_PROFILE=admin`).
+Until Day 3 this stack was applied **by a human** with SSO credentials. Since then it is planned on PRs and applied by CI on merge, after approval in the `terraform-apply` environment (ADR 0030, ADR 0031). The commands below are for checking it from a laptop with SSO credentials (`AWS_PROFILE=admin`).
 
 State: same bucket as `terraform/bootstrap`, key `org/terraform.tfstate`.
 

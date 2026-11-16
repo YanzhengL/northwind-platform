@@ -131,12 +131,6 @@ variable "budget_limit_unit" {
   type        = string
 }
 
-variable "budget_actual_threshold_percent" {
-  description = "Threshold of the existing ACTUAL-spend alert, as set on Day 1 (`aws budgets describe-notifications-for-budget`)."
-  type        = number
-  default     = 100
-}
-
 variable "budget_alert_emails" {
   description = "Email addresses that receive budget alerts."
   type        = list(string)

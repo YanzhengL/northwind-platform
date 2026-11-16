@@ -130,7 +130,7 @@ data "aws_iam_policy_document" "cloudtrail_bucket" {
     }
   }
 
-  # TLS-only, same as the state bucket.
+  # HTTPS-only, same as the state bucket.
   statement {
     sid     = "DenyInsecureTransport"
     effect  = "Deny"
@@ -149,6 +149,28 @@ data "aws_iam_policy_document" "cloudtrail_bucket" {
       test     = "Bool"
       variable = "aws:SecureTransport"
       values   = ["false"]
+    }
+  }
+
+  # TLS 1.0/1.1 have known weaknesses; audit logs get the same floor as the state bucket.
+  statement {
+    sid     = "DenyOutdatedTLS"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*",
+    ]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "NumericLessThan"
+      variable = "s3:TlsVersion"
+      values   = ["1.2"]
     }
   }
 }
