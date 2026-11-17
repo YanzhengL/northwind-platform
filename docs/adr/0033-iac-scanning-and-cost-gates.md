@@ -2,6 +2,13 @@
 
 - **Status:** accepted
 - **Date:** 2026-10-31
+- **Amended:** 2026-11-17 - accepted risks still reach the Security tab: Checkov's SARIF reports
+  inline-skipped checks, and Trivy does not read `checkov:skip` comments. Rather than filter SARIF
+  in CI or duplicate every reason as a `trivy:ignore` comment, each accepted-risk alert is dismissed
+  in GitHub as "won't fix", with the same reason as its inline skip. `CKV_AWS_274` and
+  `CKV_AWS_275` (AdministratorAccess on the apply role) stay open, linked to #3, until the role is
+  scoped down. Trade-off: the dismissal reason lives in GitHub, not Git, and an alert can reopen as
+  new if its resource moves; it is then dismissed again with the same reason.
 
 ## Context
 The platform security requirements call for Checkov and Trivy in CI and Infracost on Terraform PRs. What's left to decide is
