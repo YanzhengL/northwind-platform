@@ -12,3 +12,19 @@ Decisions and trade-offs are recorded in `docs/adr/`.
 6. Workloads - orders-api, payments-worker
 
 _Expand each section as the milestone lands._
+
+## Built so far
+
+### Layer 1: AWS Organization (`v0.1-foundation`)
+- Four accounts under two OUs, with deny-list SCPs and a region lock to `eu-west-2`; global
+  services are exempt ([ADR 0020](adr/0020-four-account-structure.md), [0021](adr/0021-deny-list-scps.md), [0022](adr/0022-region-lock-exemptions.md)).
+- An organization CloudTrail trail, a £20 budget and an org tag policy for the four mandatory tag keys,
+  all in `terraform/org/`.
+- The bootstrap (Terraform state bucket and the GitHub OIDC roles) sits in the management account,
+  because it had to exist before `shared-services`; the move is tracked in #4 ([ADR 0013](adr/0013-bootstrap-in-management-account.md)).
+
+### Delivery
+- One `ci.yml` pipeline: static checks with no credentials, then plan on the PR, then apply after
+  merge and approval, all through OIDC ([ADR 0030](adr/0030-ci-workflow-layout.md)–[0036](adr/0036-immutable-oidc-subject-claims.md), [0012](adr/0012-gha-apply-trust.md)).
+- Checkov blocks merges; Trivy and Infracost report ([ADR 0033](adr/0033-iac-scanning-and-cost-gates.md)), and
+  mandatory tags are checked on the PR ([ADR 0037](adr/0037-mandatory-tags-on-prs.md)).

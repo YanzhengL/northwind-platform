@@ -97,7 +97,8 @@ def detailed() -> None:
             repo = Github("northwind-platform\nmonorepo")
             gha = GithubActions("Actions\nplan / apply / build")
             tf = Terraform("Terraform\nmodules")
-            scan = Trivy("Trivy + Checkov\nscans")
+            # Checkov first: it is the only blocking check; Infracost has no icon, so the label carries it.
+            scan = Trivy("Checkov + Trivy\n+ Infracost")
             repo >> deploy("PR") >> gha
             gha >> deploy() >> tf
             gha >> deploy() >> scan

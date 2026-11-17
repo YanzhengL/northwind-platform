@@ -2,6 +2,11 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-16
+- **Amended:** 2026-11-16 - Infracost tagging policies are a 14-day Infracost Cloud trial, not
+  part of the free tier, and the trial will not be extended. The check is proven by
+  `docs/evidence/2026-11-16-infracost-tags-pass.png`, then stops when the trial ends. Its
+  replacement is the custom Checkov policy from "Alternatives", planned before tenant
+  onboarding in Week 3.
 
 ## Context
 Every AWS resource must carry four tags: `team`, `env`, `service` and `owner`. They drive cost
