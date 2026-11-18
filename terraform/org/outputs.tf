@@ -4,9 +4,11 @@ output "organization_id" {
   sensitive   = true
 }
 
+# Sensitive like organization_id: OU IDs embed the org root ID and were printed in public CI apply logs (ADR 0032).
 output "ou_ids" {
-  description = "OU IDs keyed by OU name."
+  description = "OU IDs keyed by OU name. Read with `terraform output -json ou_ids`."
   value       = { for name, ou in aws_organizations_organizational_unit.this : name => ou.id }
+  sensitive   = true
 }
 
 # Sensitive so account IDs don't appear in terminal output, recordings or screenshots.
