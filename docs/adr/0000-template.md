@@ -18,5 +18,5 @@ What we chose, in one or two sentences.
 ## Consequences
 What gets easier, what gets harder, what we must watch.
 
-## Interview angle
-The question this answers, and my 30-second answer.
+## In short
+The decision and its main trade-off in one paragraph, short enough to say in 30 seconds.
