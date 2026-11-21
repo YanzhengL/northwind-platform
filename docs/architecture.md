@@ -27,4 +27,4 @@ _Expand each section as the milestone lands._
 - One `ci.yml` pipeline: static checks with no credentials, then plan on the PR, then apply after
   merge and approval, all through OIDC ([ADR 0030](adr/0030-ci-workflow-layout.md)–[0036](adr/0036-immutable-oidc-subject-claims.md), [0012](adr/0012-gha-apply-trust.md)).
 - Checkov blocks merges; Trivy and Infracost report ([ADR 0033](adr/0033-iac-scanning-and-cost-gates.md)), and
-  mandatory tags are checked on the PR ([ADR 0037](adr/0037-mandatory-tags-on-prs.md)).
+  a custom Checkov policy blocks any aws provider without the mandatory tags ([ADR 0037](adr/0037-mandatory-tags-on-prs.md)).
