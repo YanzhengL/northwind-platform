@@ -4,3 +4,6 @@ compact: true
 quiet: true
 framework:
   - terraform
+# Org-specific YAML policies (e.g. CKV2_NW_1 mandatory default_tags) run alongside the built-ins.
+external-checks-dir:
+  - .checkov/policies

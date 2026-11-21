@@ -1,0 +1,29 @@
+# Every aws provider block (including aliases) must set the four mandatory cost tags in
+# default_tags. Checked on the provider, not on resources, because Checkov does not merge
+# default_tags into resources. Proves the keys exist only; values are known at plan time
+# and are covered by the var.env validation and the org tag policy.
+metadata:
+  # CKV2_ marks a YAML (graph) policy; NW_ keeps our IDs apart from Checkov's built-ins.
+  id: CKV2_NW_1
+  name: "Ensure every aws provider sets mandatory default_tags (team, env, service, owner)"
+  category: GENERAL_SECURITY
+definition:
+  # All four must hold; a provider with no default_tags block fails every condition.
+  and:
+    # "provider.aws" is the graph type for provider blocks; plain "aws" matches nothing.
+    - cond_type: attribute
+      resource_types: ["provider.aws"]
+      attribute: default_tags.tags.team
+      operator: exists
+    - cond_type: attribute
+      resource_types: ["provider.aws"]
+      attribute: default_tags.tags.env
+      operator: exists
+    - cond_type: attribute
+      resource_types: ["provider.aws"]
+      attribute: default_tags.tags.service
+      operator: exists
+    - cond_type: attribute
+      resource_types: ["provider.aws"]
+      attribute: default_tags.tags.owner
+      operator: exists

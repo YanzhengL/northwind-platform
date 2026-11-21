@@ -59,8 +59,8 @@ diagram: ## Regenerate architecture diagrams from code
 lint: ## Run all pre-commit hooks on every file
 	pre-commit run --all-files
 
-test: ## Run Python tests for apps and tools
-	pytest -q apps tools
+test: ## Run Python tests for apps, tools and Checkov policies
+	pytest -q apps tools tests
 
 tools-update: ## Update pre-commit hook versions
 	pre-commit autoupdate --freeze

@@ -33,7 +33,10 @@ repos:
       - id: terraform_tflint
       # Same .checkov.yaml as the CLI call in ci.yml, so laptop and CI apply the same rules.
       - id: terraform_checkov
-        args: [--args=--config-file=__GIT_WORKING_DIR__/.checkov.yaml]
+        args:
+          - --args=--config-file=__GIT_WORKING_DIR__/.checkov.yaml
+          # The hook runs checkov from inside each stack folder, so the relative path in .checkov.yaml doesn't resolve.
+          - --args=--external-checks-dir=__GIT_WORKING_DIR__/.checkov/policies
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: c0f278f1254ccc8fb09676bcdb8d847e7db493e5 # frozen: v0.17.4
