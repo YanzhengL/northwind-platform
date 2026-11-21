@@ -12,8 +12,13 @@ variable "team" {
 }
 
 variable "env" {
-  description = "Environment name for these resources, e.g. \"mgmt\" (default_tags: env)."
+  description = "Environment name for these resources: one of mgmt, shared, dev, prod (default_tags: env)."
   type        = string
+  # Checkov CKV2_NW_1 only proves the env tag exists; this pins its value to the four account names (ADR 0040).
+  validation {
+    condition     = contains(["mgmt", "shared", "dev", "prod"], var.env)
+    error_message = "env must be one of: mgmt, shared, dev, prod."
+  }
 }
 
 variable "service" {
