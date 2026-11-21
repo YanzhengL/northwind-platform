@@ -159,8 +159,8 @@ Open foundation gaps, each tracked:
   ([#3](https://github.com/YanzhengL/northwind-platform/issues/3)).
 - Terraform state and the CI roles live in the management account until they move to
   `shared-services` ([#4](https://github.com/YanzhengL/northwind-platform/issues/4), [ADR 0013](docs/adr/0013-bootstrap-in-management-account.md)).
-- The Infracost tag check runs on a trial; a custom Checkov policy replaces it before Week 3
-  ([ADR 0037](docs/adr/0037-mandatory-tags-on-prs.md)).
+- Mandatory tags are enforced by a custom Checkov policy that blocks the merge; the
+  Infracost tag check was a trial and is now optional ([ADR 0037](docs/adr/0037-mandatory-tags-on-prs.md)).
 
 ## About
 
