@@ -64,7 +64,7 @@ will be managed by ExternalDNS. Facts that shape the design:
   records go in this zone or in another delegated subzone.
 
 ## In short
-I setup seperate hosted zones and certificate per account, because an ALB can only use an
+I set up separate hosted zones and certificates per account, because an ALB can only use an
 ACM certificate from its own account and region. The parent zone, for the registered domain itself, is in
 `shared-services` and delegates a subzone to the dev account with NS records. Both zones and the certificate live in the
 long-lived DNS stack, not the dev stack, so `make down` never deletes them and the delegation
