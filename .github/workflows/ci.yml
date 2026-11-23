@@ -120,6 +120,8 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
         run: |
           # Every stack must be listed here, or it is silently never planned (ADR 0030).
+          # Exception: envs/* get static checks only; CI has no member-account credentials
+          # until ADR 0061 (Day 6). Their local plan summary goes in the PR (ADR 0040).
           all_stacks=(bootstrap org)
           # bootstrap owns the roles CI runs as, so CI plans it but never applies it.
           no_apply=(bootstrap)

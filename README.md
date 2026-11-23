@@ -90,9 +90,41 @@ Design detail and trade-offs: [`docs/architecture.md`](docs/architecture.md) and
 Prerequisites: an AWS Organization management account, a domain with a subdomain you can delegate,
 a GitHub repo, and a Slack webhook. All tooling is pinned in the [dev container](.devcontainer/).
 
+AWS access uses IAM Identity Center, with no long-lived keys. Add these profiles to `~/.aws/config`.
+They share one `sso-session`, so a single login covers every account
+([ADR 0040](docs/adr/0040-local-sso-profiles-for-member-accounts.md)):
+
+```ini
+[sso-session np-sso]
+sso_start_url           = https://<your-portal>.awsapps.com/start
+sso_region              = eu-west-2
+sso_registration_scopes = sso:account:access
+
+# Terraform state for every stack, plus the bootstrap and org resources
+[profile nw-management]
+sso_session    = np-sso
+sso_account_id = <management-account-id>
+sso_role_name  = AdministratorAccess
+region         = eu-west-2
+
+# Resources in shared-services (terraform/envs/shared)
+[profile nw-shared]
+sso_session    = np-sso
+sso_account_id = <shared-services-account-id>
+sso_role_name  = NwAdmin
+region         = eu-west-2
+
+# Resources in workloads-dev (terraform/envs/dev)
+[profile nw-dev]
+sso_session    = np-sso
+sso_account_id = <workloads-dev-account-id>
+sso_role_name  = NwAdmin
+region         = eu-west-2
+```
+
 ```bash
-# 0. Open in VS Code → "Reopen in Container"
-aws sso login --profile nw-management
+# 0. Open in VS Code → "Reopen in Container", then sign in once for every account
+aws sso login --sso-session np-sso
 
 # 1. One-off foundation (state bucket, OIDC roles, organization)
 make bootstrap

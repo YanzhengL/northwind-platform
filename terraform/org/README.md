@@ -10,14 +10,14 @@ AWS Organization guardrails, applied from the management account:
 - The Day 1 $20 budget, imported with its three alerts (actual 85% and 100%, forecast 100%), plus an 80% forecast alert
 - Identity Center group `nw-platform-admins` with `NwAdmin` / `NwReadOnly` in every member account
 
-Until Day 3 this stack was applied **by a human** with SSO credentials. Since then it is planned on PRs and applied by CI on merge, after approval in the `terraform-apply` environment (ADR 0030, ADR 0031). The commands below are for checking it from a laptop with SSO credentials (`AWS_PROFILE=admin`).
+Until Day 3 this stack was applied **by a human** with SSO credentials. Since then it is planned on PRs and applied by CI on merge, after approval in the `terraform-apply` environment (ADR 0030, ADR 0031). The commands below are for checking it from a laptop with SSO credentials (`AWS_PROFILE=nw-management`).
 
 State: same bucket as `terraform/bootstrap`, key `org/terraform.tfstate`.
 
 ## Usage
 
 ```bash
-export AWS_PROFILE=admin && aws sso login
+export AWS_PROFILE=nw-management && aws sso login
 cp terraform.tfvars.example terraform.tfvars              # fill in, see comments in the file
 cp ../bootstrap/backend.s3.tfbackend .                    # gitignored
 terraform init -backend-config=backend.s3.tfbackend

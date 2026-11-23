@@ -4,13 +4,18 @@ SHELL := /bin/bash
 ENV ?= dev
 TF_DIR := terraform/envs/$(ENV)
 
+# Make ignores an unknown variable, so env=shared would silently run against the default ENV.
+ifeq ($(origin env),command line)
+$(error Use ENV=$(env), not env=$(env))
+endif
+
 .PHONY: help bootstrap bootstrap-plan bootstrap-check up down plan apply drill-1 drill-2 drill-3 drill-4 drill-5 diagram lint test tools-update
 
 help: ## Show targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
 BOOTSTRAP_DIR := terraform/bootstrap
-BOOTSTRAP_PROFILE ?= admin
+BOOTSTRAP_PROFILE ?= nw-management
 
 # Bootstrap is applied by a human with SSO, never by CI, so pin the profile for these targets only.
 bootstrap bootstrap-plan bootstrap-check: export AWS_PROFILE := $(BOOTSTRAP_PROFILE)
@@ -30,7 +35,9 @@ bootstrap: bootstrap-check ## Apply state bucket + GitHub OIDC roles (after the 
 	terraform -chdir=$(BOOTSTRAP_DIR) apply
 
 plan: ## terraform plan for ENV (default dev)
-	terraform -chdir=$(TF_DIR) init -input=false && terraform -chdir=$(TF_DIR) plan
+	@test -f $(TF_DIR)/backend.s3.tfbackend || { echo "Missing $(TF_DIR)/backend.s3.tfbackend - see the comment in $(TF_DIR)/backend.tf."; exit 1; }
+	terraform -chdir=$(TF_DIR) init -input=false -backend-config=backend.s3.tfbackend
+	terraform -chdir=$(TF_DIR) plan
 
 up: ## Create network + cluster for ENV and bootstrap Argo CD (Week 2-3)
 	@echo "TODO Week 2: terraform apply $(TF_DIR), then install Argo CD app-of-apps"

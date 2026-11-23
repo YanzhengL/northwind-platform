@@ -1,0 +1,33 @@
+# Example inputs for terraform/envs/dev. Copy and fill in:
+#
+#   cp terraform.tfvars.example terraform.tfvars    # terraform.tfvars is gitignored
+#
+# Run locally with IAM Identity Center profiles; one login covers every account (ADR 0040):
+#
+#   aws sso login --sso-session np-sso
+#
+# Never commit the real file: it holds a member-account ID.
+
+# Optional. Provider region. eu-west-2 is the only region the SCPs allow (ADR 0022).
+# region = "eu-west-2"
+
+# ---------- default_tags ----------
+# Keep team and owner identical across every stack, or cost reports split them into separate values.
+
+team    = "platform"
+env     = "dev" # make down finds leftover resources by this tag
+service = "network"
+owner   = "your-handle" # a stable handle or team alias, not a personal email
+
+# ---------- Target account (ADR 0040) ----------
+
+# Profile for the workloads-dev account, as named in ~/.aws/config. State does not use it:
+# the backend reads the management profile from backend.s3.tfbackend.
+aws_profile = "nw-dev"
+
+# The workloads-dev account. Look it up in the organization, not through the profile above,
+# or a wrong profile would supply a matching wrong ID and pass the check:
+#   aws organizations list-accounts --profile nw-management \
+#     --query "Accounts[?Name=='workloads-dev'].Id" --output text
+# The placeholder passes validation but matches no real account, so an unedited copy fails safely.
+account_id = "000000000000"
