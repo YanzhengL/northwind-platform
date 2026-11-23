@@ -2,6 +2,8 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-19
+- **Amended:** 2026-11-23 - `allowed_account_ids` is only checked once a stack uses its provider;
+  a stack with no resources plans without logging in to the member account.
 
 ## Context
 Until now every stack (`bootstrap`, `org`) has run in the management account: the state bucket
@@ -30,7 +32,8 @@ Terraform needs credentials in the target account, and somewhere to keep state. 
   (`profile = var.aws_profile`). Backend and provider credentials are configured separately.
 - **Every provider sets `allowed_account_ids`** (account ID from the gitignored `terraform.tfvars`),
   so running a stack with the wrong profile fails before plan instead of building in the wrong
-  account.
+  account. Terraform does not configure a provider that nothing uses, so the check starts with a
+  stack's first resource or data source.
 - **CI runs the static checks on `envs/*`** (fmt, validate, tflint, Checkov, Trivy) but does not plan
   them yet, because it has no credentials in the member accounts. Until it does (planned in
   ADR 0061, read-only plan roles in each member account), the local `make plan` summary goes in
@@ -59,6 +62,8 @@ Terraform needs credentials in the target account, and somewhere to keep state. 
   in the README quick start. ADR 0061 must reuse the same names in CI so the Terraform code stays
   the same locally and in CI.
 - `allowed_account_ids` makes "wrong account" a fast, harmless failure, not a silent one.
+- An empty stack plans "No changes" with any profile, even one that does not exist, so that result
+  does not prove provider access. Test the wrong profile once the stack has resources.
 
 ## In short
-No long-lived keys anywhere. People use IAM Identity Center: one profile per account, all sharing one SSO session, so one login covers all four. CI uses GitHub OIDC, which today only reaches the management account; read-only plan roles in the member accounts are next. State is one S3 bucket in the management account, with one state file per stack. Because the state and the resources are in different accounts, the backend uses the management profile and the provider uses the member-account profile, and `allowed_account_ids` makes a wrong profile fail before plan.
+No long-lived keys anywhere. People use IAM Identity Center: one profile per account, all sharing one SSO session, so one login covers all four. CI uses GitHub OIDC, which today only reaches the management account; read-only plan roles in the member accounts are next. State is one S3 bucket in the management account, with one state file per stack. Because the state and the resources are in different accounts, the backend uses the management profile and the provider uses the member-account profile, and `allowed_account_ids` makes a wrong profile fail before plan, once the stack has something that uses the provider.

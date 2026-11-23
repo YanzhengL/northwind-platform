@@ -7,7 +7,7 @@ One-time foundation for everything else in this repo:
 - `nw-gha-plan` role: read-only, assumable only by `pull_request` runs of this repo
 - `nw-gha-apply` role: assumable only by jobs in the approval-gated `terraform-apply` GitHub environment of this repo
 
-This stack is applied **by a human** with SSO credentials (`AWS_PROFILE=admin`), not by CI.
+This stack is applied **by a human** with SSO credentials (`AWS_PROFILE=nw-management`), not by CI.
 
 ## Backend: why `backend.tf` has no bucket name
 
@@ -47,7 +47,7 @@ The repo has immutable subjects turned on.
 
 ## Usage
 
-Prerequisites: `aws sso login --profile admin` and `export AWS_PROFILE=admin`, run from this directory.
+Prerequisites: `aws sso login --profile nw-management` and `export AWS_PROFILE=nw-management`, run from this directory.
 
 ### Day-to-day (bootstrap already applied)
 
@@ -58,7 +58,7 @@ terraform init -backend-config=backend.s3.tfbackend
 terraform plan                                                 # expect: No changes
 ```
 
-Or from the repo root, once `terraform.tfvars` and `backend.s3.tfbackend` exist: `make bootstrap-plan` (check) and `make bootstrap` (apply, prompts for `yes`). Use `BOOTSTRAP_PROFILE=<name>` if your SSO profile isn't `admin`.
+Or from the repo root, once `terraform.tfvars` and `backend.s3.tfbackend` exist: `make bootstrap-plan` (check) and `make bootstrap` (apply, prompts for `yes`). Use `BOOTSTRAP_PROFILE=<name>` if your SSO profile isn't `nw-management`.
 
 ### First-ever run (state bucket does not exist yet)
 
