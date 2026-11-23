@@ -33,6 +33,7 @@ from diagrams.aws.network import (
     Route53,
 )
 from diagrams.aws.security import (
+    CertificateManager,
     IdentityAndAccessManagementIamRole,
     KeyManagementService,
     SecretsManager,
@@ -118,11 +119,15 @@ def detailed() -> None:
 
             with Cluster("shared-services account", graph_attr=CLUSTER):
                 ecr = EC2ContainerRegistry("ECR")
-                dns = Route53("Route 53\nplatform subdomain")
+                parent_zone = Route53("Route 53 parent zone\n<domain>")
 
             with Cluster(
                 "workloads-dev account (prod mirrors this)", graph_attr=CLUSTER
             ):
+                # Outside the VPC cluster: `make down` destroys the VPC but never these (ADR 0041).
+                dev_zone = Route53("Route 53 dev zone\nnw-dev.<domain>")
+                cert = CertificateManager("ACM certificate\n*.nw-dev.<domain>")
+
                 with Cluster("VPC - 3 AZs", graph_attr=CLUSTER):
                     alb = ElbApplicationLoadBalancer("ALB\n(LB controller)")
                     nat = NATGateway("NAT\n(1 in dev)")
@@ -167,7 +172,10 @@ def detailed() -> None:
         argo >> deploy() >> policy
 
         # Runtime data paths (green)
-        dns >> data() >> alb >> data() >> orders
+        # Dotted: delegation and certificate are configuration, not request traffic.
+        parent_zone >> control("NS delegation") >> dev_zone
+        cert >> control("TLS") >> alb
+        dev_zone >> data() >> alb >> data() >> orders
         orders >> data() >> ddb
         orders >> data("publish") >> sqs
         sqs >> data("consume") >> worker

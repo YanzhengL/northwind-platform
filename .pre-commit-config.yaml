@@ -30,6 +30,8 @@ repos:
       - id: terraform_fmt
       # The hook runs init -backend=false itself, so validate needs no AWS credentials.
       - id: terraform_validate
+        # configuration_aliases need a caller to supply aws.dev; validating envs/shared covers this module.
+        exclude: ^terraform/modules/dns/
       - id: terraform_tflint
       # Same .checkov.yaml as the CLI call in ci.yml, so laptop and CI apply the same rules.
       - id: terraform_checkov

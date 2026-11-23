@@ -9,8 +9,8 @@ validated with five incident drills.
 
 ![Architecture](docs/diagrams/architecture.png)
 
-<sub>Target architecture. Built so far: the AWS Organization, the bootstrap (state and OIDC roles)
-and the delivery pipeline. Generated from code:
+<sub>Target architecture. Built so far: the AWS Organization, the bootstrap (state and OIDC roles),
+the delivery pipeline, and the DNS zones and dev certificate. Generated from code:
 [`docs/diagrams/architecture.py`](docs/diagrams/architecture.py) · `make diagram`</sub>
 
 ---
@@ -36,7 +36,7 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 
 | Skill | Where to look | Status |
 | --- | --- | --- |
-| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM · 🗓 Weeks 2–4 |
+| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · Route 53: [`terraform/modules/dns/`](terraform/modules/dns/) ([certificate issued](docs/evidence/2026-11-23-acm-cert-issued.png)) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM, Route 53 · 🗓 Weeks 2–4 |
 | Infrastructure as Code (Terraform) | S3 remote state with native locking, pinned providers with lockfile hashes, imported console resources · modules and env split | ✅ state, pins, imports · 🗓 modules (Week 2) |
 | Multi-account governance | [`terraform/org/`](terraform/org/) — Organizations, deny-list SCPs, region lock, org CloudTrail, budget ([region deny](docs/evidence/2026-10-29-scp-region-deny.png), [trail event](docs/evidence/2026-10-29-cloudtrail-scp-deny-event.png)) | ✅ |
 | Kubernetes on EKS | Karpenter (spot), LB controller, Pod Identity | 🗓 Week 2 |
@@ -65,6 +65,7 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 | Checkov finding blocking a PR | [screenshot](docs/evidence/2026-11-11-pr-checkov-finding.png) |
 | Apply job running on OIDC credentials, no stored keys | [screenshot](docs/evidence/2026-11-16-apply-oidc-role.png) |
 | Region-lock SCP denying a create outside eu-west-2 | [screenshot](docs/evidence/2026-10-29-scp-region-deny.png) |
+| Dev wildcard certificate issued through the delegated DNS zone | [screenshot](docs/evidence/2026-11-23-acm-cert-issued.png) |
 
 All screenshots live in [`docs/evidence/`](docs/evidence/).
 
@@ -75,7 +76,8 @@ All screenshots live in [`docs/evidence/`](docs/evidence/).
 | Layer | Built with | Lifecycle |
 | --- | --- | --- |
 | AWS Organization — `management`, `shared-services`, `workloads-dev`, `workloads-prod` | Terraform | Persistent |
-| Shared services — ECR, Terraform state, Route 53 subdomain | Terraform | Persistent |
+| Shared services — ECR, Terraform state | Terraform | Persistent |
+| DNS — parent zone in `shared-services`, dev zone and wildcard certificate in `workloads-dev` ([ADR 0041](docs/adr/0041-delegated-dns-subzone-per-account.md)) | Terraform | Persistent |
 | Network — VPC, 3 AZs, NAT, VPC endpoints | Terraform | Per session |
 | EKS cluster — Karpenter, LB controller, Pod Identity | Terraform | Per session |
 | Platform services — monitoring, logging, tracing, policy, secrets, cost | Argo CD | Per session |
@@ -87,7 +89,7 @@ Design detail and trade-offs: [`docs/architecture.md`](docs/architecture.md) and
 
 ## Quick start
 
-Prerequisites: an AWS Organization management account, a domain with a subdomain you can delegate,
+Prerequisites: an AWS Organization management account, a registered domain whose name servers you can change,
 a GitHub repo, and a Slack webhook. All tooling is pinned in the [dev container](.devcontainer/).
 
 AWS access uses IAM Identity Center, with no long-lived keys. Add these profiles to `~/.aws/config`.
@@ -146,7 +148,7 @@ make down ENV=dev
 | State | Approximate cost |
 | --- | --- |
 | Session running (EKS, 2–3 spot nodes, NAT, ALB) | $0.35–0.50 per hour (about £2.50–3.50 per 8-hour session) |
-| Torn down (S3 state, ECR images, Route 53 zone, Secrets) | about £1–2 per month |
+| Torn down (S3 state, ECR images, two Route 53 zones, Secrets) | about £1–2 per month |
 | Budget alarm | £20 per month |
 
 Estimates; measured figures will replace them after Week 2.

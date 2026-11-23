@@ -48,3 +48,28 @@ variable "account_id" {
     error_message = "account_id must be a 12-digit AWS account ID."
   }
 }
+
+# ---------- DNS (ADR 0041) ----------
+
+variable "parent_domain" {
+  description = "Registered domain hosted in the shared account, without a trailing dot (e.g. example.com). Validated in modules/dns."
+  type        = string
+}
+
+# ---------- workloads-dev, for the aliased provider (ADR 0041) ----------
+
+variable "dev_aws_profile" {
+  description = "IAM Identity Center profile for the aws.dev provider alias, which creates the dev hosted zone and certificate in workloads-dev (e.g. nw-dev)."
+  type        = string
+}
+
+variable "dev_account_id" {
+  description = "ID of the workloads-dev account. The aws.dev alias refuses any other account (allowed_account_ids)."
+  type        = string
+  # Account IDs identify the org, so keep them out of plan output in public PRs (ADR 0032).
+  sensitive = true
+  validation {
+    condition     = can(regex("^[0-9]{12}$", var.dev_account_id))
+    error_message = "dev_account_id must be a 12-digit AWS account ID."
+  }
+}

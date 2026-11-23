@@ -16,3 +16,4 @@ Screenshots and recordings captured from real runs. They back up the claims in t
 | [2026-11-11-pr-checkov-finding.png](2026-11-11-pr-checkov-finding.png) | A deliberate open-SSH security group failing Checkov, shown as code scanning annotations on the PR | [ADR 0033](../adr/0033-iac-scanning-and-cost-gates.md) |
 | [2026-11-16-infracost-tags-pass.png](2026-11-16-infracost-tags-pass.png) | Infracost comment passing after the tag policy was set to `team`, `env`, `service`, `owner` | [ADR 0037](../adr/0037-mandatory-tags-on-prs.md) |
 | [2026-11-16-apply-oidc-role.png](2026-11-16-apply-oidc-role.png) | Apply job log printing `assumed-role/nw-gha-apply/GitHubActions`: OIDC credentials, no account ID | [ADR 0012](../adr/0012-gha-apply-trust.md) |
+| [2026-11-23-acm-cert-issued.png](2026-11-23-acm-cert-issued.png) | The dev wildcard certificate `Issued` in ACM, validated by DNS in the delegated dev zone | [ADR 0041](../adr/0041-delegated-dns-subzone-per-account.md) |
