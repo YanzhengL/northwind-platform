@@ -31,3 +31,17 @@ aws_profile = "nw-shared"
 #     --query "Accounts[?Name=='shared-services'].Id" --output text
 # The placeholder passes validation but matches no real account, so an unedited copy fails safely.
 account_id = "000000000000"
+
+# ---------- DNS (ADR 0041) ----------
+
+# The registered domain itself, not a subdomain: the registrar's name servers point at this zone.
+parent_domain = "example.com"
+
+# ---------- workloads-dev, for the aws.dev provider alias (ADR 0041) ----------
+
+dev_aws_profile = "nw-dev"
+
+# Look it up in the organization, for the same reason as account_id:
+#   aws organizations list-accounts --profile nw-management \
+#     --query "Accounts[?Name=='workloads-dev'].Id" --output text
+dev_account_id = "000000000000"

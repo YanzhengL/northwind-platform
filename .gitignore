@@ -15,6 +15,8 @@ override.tf.json
 *_override.tf.json
 .terraform.tfstate.lock.info
 # Keep the provider lock file committed: .terraform.lock.hcl
+# Except in modules: Terraform only uses the root stack's lock, and the validate hook leaves strays here.
+terraform/modules/**/.terraform.lock.hcl
 
 # Secrets and local config - never commit
 *.tfvars
