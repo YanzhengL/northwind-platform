@@ -36,7 +36,7 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 
 | Skill | Where to look | Status |
 | --- | --- | --- |
-| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · Route 53: [`terraform/modules/dns/`](terraform/modules/dns/) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM, Route 53 · 🗓 Weeks 2–4 |
+| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · Route 53: [`terraform/modules/dns/`](terraform/modules/dns/) ([certificate issued](docs/evidence/2026-11-23-acm-cert-issued.png)) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM, Route 53 · 🗓 Weeks 2–4 |
 | Infrastructure as Code (Terraform) | S3 remote state with native locking, pinned providers with lockfile hashes, imported console resources · modules and env split | ✅ state, pins, imports · 🗓 modules (Week 2) |
 | Multi-account governance | [`terraform/org/`](terraform/org/) — Organizations, deny-list SCPs, region lock, org CloudTrail, budget ([region deny](docs/evidence/2026-10-29-scp-region-deny.png), [trail event](docs/evidence/2026-10-29-cloudtrail-scp-deny-event.png)) | ✅ |
 | Kubernetes on EKS | Karpenter (spot), LB controller, Pod Identity | 🗓 Week 2 |
@@ -65,6 +65,7 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 | Checkov finding blocking a PR | [screenshot](docs/evidence/2026-11-11-pr-checkov-finding.png) |
 | Apply job running on OIDC credentials, no stored keys | [screenshot](docs/evidence/2026-11-16-apply-oidc-role.png) |
 | Region-lock SCP denying a create outside eu-west-2 | [screenshot](docs/evidence/2026-10-29-scp-region-deny.png) |
+| Dev wildcard certificate issued through the delegated DNS zone | [screenshot](docs/evidence/2026-11-23-acm-cert-issued.png) |
 
 All screenshots live in [`docs/evidence/`](docs/evidence/).
 
