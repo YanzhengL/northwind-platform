@@ -23,6 +23,15 @@ _Expand each section as the milestone lands._
 - The bootstrap (Terraform state bucket and the GitHub OIDC roles) sits in the management account,
   because it had to exist before `shared-services`; the move is tracked in #4 ([ADR 0013](adr/0013-bootstrap-in-management-account.md)).
 
+### Layer 2: Network (`terraform/modules/vpc`)
+- Three AZs, each with a private /19 for nodes and pods (every pod takes a VPC IP) and a public /24 for
+  load balancers and NAT. Private subnets have one route table per AZ, so moving to one NAT gateway per
+  AZ changes only route targets.
+- Dev uses a single NAT gateway and a free S3 gateway endpoint, with no interface endpoints
+  ([ADR 0042](adr/0042-single-nat-gateway-in-dev.md)). Flow logs and AZ pinning are open for prod (#34).
+- Created by `make up` and destroyed by `make down` every session; DNS is in a separate long-lived
+  stack ([ADR 0041](adr/0041-delegated-dns-subzone-per-account.md)).
+
 ### Delivery
 - One `ci.yml` pipeline: static checks with no credentials, then plan on the PR, then apply after
   merge and approval, all through OIDC ([ADR 0030](adr/0030-ci-workflow-layout.md)–[0036](adr/0036-immutable-oidc-subject-claims.md), [0012](adr/0012-gha-apply-trust.md)).

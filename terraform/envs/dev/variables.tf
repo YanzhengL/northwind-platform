@@ -48,3 +48,15 @@ variable "account_id" {
     error_message = "account_id must be a 12-digit AWS account ID."
   }
 }
+
+# ---------- Network (ADR 0042) ----------
+
+variable "vpc_cidr" {
+  description = "IPv4 /16 for the VPC. Keep it different in every environment, so VPCs can be connected later."
+  type        = string
+}
+
+variable "single_nat_gateway" {
+  description = "true for one NAT gateway shared by all AZs, false for one per AZ."
+  type        = bool
+}

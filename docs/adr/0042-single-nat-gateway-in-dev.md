@@ -2,6 +2,8 @@
 
 - **Status:** accepted
 - **Date:** 2026-11-19
+- **Amended:** 2026-11-24 - built as `terraform/modules/vpc`. Two gaps are accepted until prod and tracked
+  in #34: VPC flow logs are off, and the Availability Zones are looked up, not pinned (see Consequences).
 
 ## Context
 The dev VPC has public and private subnets in three Availability Zones. EKS nodes run in the
@@ -51,6 +53,11 @@ budget together with EKS. Prod will have an availability target.
 - Revisit interface endpoints if NAT processing grows. Rough break-even for one service: an
   endpoint across 3 AZs costs about $0.03/h, and saves about $0.04 per GB moved off the NAT
   gateway. So it pays for itself above roughly 0.8 GB/h to that service.
+- VPC flow logs are off: ingestion is billed per GB and nothing reads them yet, so an incident has no
+  network record (#34).
+- The module takes the first `az_count` zones AWS lists. If AWS adds one that sorts earlier, the
+  selection can shift and replace subnets. Accepted for dev, which is rebuilt every session; decide
+  on pinning before prod (#34). The module is shared, so prod inherits both gaps until then.
 - The teardown check in `make down` must confirm that no NAT gateway or Elastic IP tagged `env=dev`
   is left, because these are the two most expensive things to forget.
 
