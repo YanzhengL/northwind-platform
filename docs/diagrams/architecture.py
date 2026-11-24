@@ -29,6 +29,7 @@ from diagrams.aws.management import Cloudtrail, Cloudwatch, Organizations
 from diagrams.aws.network import (
     ElbApplicationLoadBalancer,
     Endpoint,
+    InternetGateway,
     NATGateway,
     Route53,
 )
@@ -131,7 +132,9 @@ def detailed() -> None:
                 with Cluster("VPC - 3 AZs", graph_attr=CLUSTER):
                     alb = ElbApplicationLoadBalancer("ALB\n(LB controller)")
                     nat = NATGateway("NAT\n(1 in dev)")
-                    vpce = Endpoint("VPC endpoints\nECR / S3")
+                    igw = InternetGateway("Internet\ngateway")
+                    # S3 only: no interface endpoints in dev (ADR 0042).
+                    vpce = Endpoint("S3 gateway\nendpoint")
 
                     with Cluster("EKS cluster", graph_attr=CLUSTER):
                         eks = ElasticKubernetesService("EKS\ncontrol plane")
@@ -180,10 +183,13 @@ def detailed() -> None:
         orders >> data("publish") >> sqs
         sqs >> data("consume") >> worker
         eks >> control() >> nodes
-        ecr >> control("pull via") >> vpce
+        # Only layers are in S3; the ECR API and auth calls still use NAT.
+        ecr >> control("image layers") >> vpce
         orders >> control("AWS creds") >> podid
         policy >> control() >> secrets
         secrets >> control() >> kms
+
+        nat >> control("outbound") >> igw
 
         # Signals (orange)
         orders >> signal("metrics") >> prom
@@ -199,7 +205,6 @@ def detailed() -> None:
         _ = (
             sso,
             trail,
-            nat,
         )  # shown as account contents; no edges to keep the view readable
 
 

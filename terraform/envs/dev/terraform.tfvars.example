@@ -31,3 +31,11 @@ aws_profile = "nw-dev"
 #     --query "Accounts[?Name=='workloads-dev'].Id" --output text
 # The placeholder passes validation but matches no real account, so an unedited copy fails safely.
 account_id = "000000000000"
+
+# ---------- Network (ADR 0042) ----------
+
+# Must be a /16. Keep it different in every environment, so VPCs can be connected later.
+vpc_cidr = "10.0.0.0/16"
+
+# One NAT gateway (about $0.055/h with its public IP); false creates one per AZ, at three times the cost.
+single_nat_gateway = true

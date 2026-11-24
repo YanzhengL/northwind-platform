@@ -5,12 +5,12 @@ Multi-account AWS, Terraform, EKS, Argo CD GitOps, keyless CI/CD and SLO-based a
 validated with five incident drills.
 
 > 🚧 **Status:** `v0.1-foundation` done: AWS Organization, SCPs, and keyless Terraform CI.
-> Week 2 (VPC + EKS) is next. See the [roadmap](#roadmap) for progress.
+> Week 2 in progress: DNS and the dev VPC are built, EKS is next. See the [roadmap](#roadmap) for progress.
 
 ![Architecture](docs/diagrams/architecture.png)
 
 <sub>Target architecture. Built so far: the AWS Organization, the bootstrap (state and OIDC roles),
-the delivery pipeline, and the DNS zones and dev certificate. Generated from code:
+the delivery pipeline, the DNS zones and dev certificate, and the dev VPC. Generated from code:
 [`docs/diagrams/architecture.py`](docs/diagrams/architecture.py) · `make diagram`</sub>
 
 ---
@@ -36,8 +36,8 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 
 | Skill | Where to look | Status |
 | --- | --- | --- |
-| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · Route 53: [`terraform/modules/dns/`](terraform/modules/dns/) ([certificate issued](docs/evidence/2026-11-23-acm-cert-issued.png)) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM, Route 53 · 🗓 Weeks 2–4 |
-| Infrastructure as Code (Terraform) | S3 remote state with native locking, pinned providers with lockfile hashes, imported console resources · modules and env split | ✅ state, pins, imports · 🗓 modules (Week 2) |
+| AWS core: VPC, IAM, EKS, DynamoDB, SQS, KMS, Route 53 | IAM: [`terraform/bootstrap/`](terraform/bootstrap/), [`terraform/org/`](terraform/org/) · Route 53: [`terraform/modules/dns/`](terraform/modules/dns/) ([certificate issued](docs/evidence/2026-11-23-acm-cert-issued.png)) · VPC: [`terraform/modules/vpc/`](terraform/modules/vpc/) ([resource map](docs/evidence/2026-11-24-vpc-resource-map.png)) · the rest: `terraform/modules/`, `terraform/envs/` | ✅ IAM, Route 53, VPC · 🗓 Weeks 2–4 |
+| Infrastructure as Code (Terraform) | S3 remote state with native locking, pinned providers with lockfile hashes, imported console resources · [`modules/`](terraform/modules/) called from [`envs/`](terraform/envs/) | ✅ state, pins, imports, DNS and VPC modules · 🗓 EKS (Week 2), tenant (Week 3) |
 | Multi-account governance | [`terraform/org/`](terraform/org/) — Organizations, deny-list SCPs, region lock, org CloudTrail, budget ([region deny](docs/evidence/2026-10-29-scp-region-deny.png), [trail event](docs/evidence/2026-10-29-cloudtrail-scp-deny-event.png)) | ✅ |
 | Kubernetes on EKS | Karpenter (spot), LB controller, Pod Identity | 🗓 Week 2 |
 | CI/CD (GitHub Actions) | [`ci.yml`](.github/workflows/ci.yml) — OIDC with no stored keys, plan on PR, approval-gated apply on merge ([OIDC apply log](docs/evidence/2026-11-16-apply-oidc-role.png), [PR plan](docs/evidence/2026-11-10-pr-plan-infracost.png), [push to `main` rejected](docs/evidence/2026-11-09-protect-main-push-rejected.png)) | ✅ |
@@ -66,6 +66,8 @@ self-service golden paths, so teams ship safely without waiting on a platform en
 | Apply job running on OIDC credentials, no stored keys | [screenshot](docs/evidence/2026-11-16-apply-oidc-role.png) |
 | Region-lock SCP denying a create outside eu-west-2 | [screenshot](docs/evidence/2026-10-29-scp-region-deny.png) |
 | Dev wildcard certificate issued through the delegated DNS zone | [screenshot](docs/evidence/2026-11-23-acm-cert-issued.png) |
+| Dev VPC: three AZs, one NAT gateway, S3 gateway endpoint | [screenshot](docs/evidence/2026-11-24-vpc-resource-map.png) |
+| `make down` destroying the network, with the teardown check clean | [screenshot](docs/evidence/2026-11-24-make-down-clean.png) |
 
 All screenshots live in [`docs/evidence/`](docs/evidence/).
 
@@ -78,7 +80,7 @@ All screenshots live in [`docs/evidence/`](docs/evidence/).
 | AWS Organization — `management`, `shared-services`, `workloads-dev`, `workloads-prod` | Terraform | Persistent |
 | Shared services — ECR, Terraform state | Terraform | Persistent |
 | DNS — parent zone in `shared-services`, dev zone and wildcard certificate in `workloads-dev` ([ADR 0041](docs/adr/0041-delegated-dns-subzone-per-account.md)) | Terraform | Persistent |
-| Network — VPC, 3 AZs, NAT, VPC endpoints | Terraform | Per session |
+| Network — VPC, 3 AZs, single NAT in dev, S3 gateway endpoint ([ADR 0042](docs/adr/0042-single-nat-gateway-in-dev.md)) | Terraform | Per session |
 | EKS cluster — Karpenter, LB controller, Pod Identity | Terraform | Per session |
 | Platform services — monitoring, logging, tracing, policy, secrets, cost | Argo CD | Per session |
 | Tenants and workloads — `orders-api`, `payments-worker` | Argo CD | Per session |
